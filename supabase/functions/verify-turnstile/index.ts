@@ -7,7 +7,7 @@ serve(async (req) => {
             headers: {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization, x-client-info, apikey",
             },
         });
     }
@@ -28,7 +28,16 @@ serve(async (req) => {
             );
         }
 
-        const secretKey = Deno.env.get("TURNSTILE_SECRET_KEY");
+        const origin = req.headers.get("origin") || "";
+        const isLocalhost = origin.includes("localhost") || origin.includes("127.0.0.1");
+
+        let secretKey = Deno.env.get("TURNSTILE_SECRET_KEY");
+
+        // Use test secret key for localhost
+        if (isLocalhost) {
+            console.log("Using test secret key for localhost");
+            secretKey = "1x0000000000000000000000000000000AA";
+        }
 
         if (!secretKey) {
             console.error("TURNSTILE_SECRET_KEY environment variable is not set");

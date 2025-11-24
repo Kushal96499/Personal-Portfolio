@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Suspense, lazy, useState } from "react";
+import { Suspense, lazy, useState, useEffect } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import SecurityCheck from "./components/SecurityCheck";
@@ -38,35 +38,36 @@ import EasterEggEngine from "./components/EasterEggEngine";
 
 // Supabase function URL
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const VERIFY_TURNSTILE_URL = `${SUPABASE_URL}/functions/v1/verify-turnstile`;
+const VERIFY_TURNSTILE_URL = `${SUPABASE_URL.replace('.supabase.co', '')}.functions.supabase.co/verify-turnstile`;
 
 
 const App = () => {
   const [verified, setVerified] = useState(false);
 
   const handleVerified = async (token) => {
-    // Skip backend verification in localhost (development mode)
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-    if (isLocalhost) {
-      console.log("Development mode: Skipping backend verification");
-      setVerified(true);
-      return;
-    }
-
-    // Production: Verify with Supabase Edge Function
     try {
+      // Call Supabase Edge Function for backend verification
       const res = await fetch(VERIFY_TURNSTILE_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
         body: JSON.stringify({ token }),
       });
 
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
       const data = await res.json();
+
       if (data.success) {
+        console.log("Backend verification successful");
         setVerified(true);
       } else {
-        alert("Verification failed. Try again.");
+        console.error("Backend verification failed:", data);
+        alert("Verification failed. Please try again.");
         window.location.reload();
       }
     } catch (error) {

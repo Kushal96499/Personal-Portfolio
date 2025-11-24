@@ -9,8 +9,8 @@ export default function SecurityCheck({ onVerified }) {
     // Use test key for localhost, production key for deployed site
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const siteKey = isLocalhost
-        ? "1x00000000000000000000AA" // Cloudflare test key (always passes)
-        : "0x4AAAAAAACCnPOSXXplvy65O"; // Your production key
+        ? "1x00000000000000000000AA" // Test key for development
+        : "0x4AAAAAACCnPOSXXplvy65O"; // Production key
 
     useEffect(() => {
         // Check if Turnstile script is already loaded
@@ -70,13 +70,14 @@ export default function SecurityCheck({ onVerified }) {
         }}>
             <div style={{
                 textAlign: "center",
-                padding: "40px",
+                padding: "40px 20px",
                 background: "rgba(255, 255, 255, 0.05)",
                 borderRadius: "16px",
                 backdropFilter: "blur(10px)",
                 border: "1px solid rgba(6, 182, 212, 0.3)",
                 boxShadow: "0 0 40px rgba(6, 182, 212, 0.2)",
-                maxWidth: "500px"
+                maxWidth: "500px",
+                width: "90%"
             }}>
                 <h2 style={{
                     color: "#06b6d4",
@@ -123,15 +124,12 @@ export default function SecurityCheck({ onVerified }) {
                     }}>{error}</p>
                 )}
 
-                {isLocalhost && (
-                    <p style={{
-                        color: "rgba(255, 255, 255, 0.5)",
-                        marginTop: "12px",
-                        fontSize: "11px"
-                    }}>Development mode - using test key</p>
-                )}
+                <p style={{
+                    color: "rgba(255, 255, 255, 0.5)",
+                    marginTop: "12px",
+                    fontSize: "11px"
+                }}>{isLocalhost ? "Development mode" : "Production mode"}</p>
             </div>
         </div>
     );
 }
-
