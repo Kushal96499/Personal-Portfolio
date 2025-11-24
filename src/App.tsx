@@ -1,0 +1,88 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Suspense, lazy } from "react";
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+
+// Lazy load admin and detail pages
+const BlogDetail = lazy(() => import("./pages/BlogDetail"));
+const Login = lazy(() => import("./pages/admin/Login"));
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
+const Projects = lazy(() => import("./pages/admin/Projects"));
+const Testimonials = lazy(() => import("./pages/admin/Testimonials"));
+const Messages = lazy(() => import("./pages/admin/Messages"));
+const Certificates = lazy(() => import("./pages/admin/Certificates"));
+const Blogs = lazy(() => import("./pages/admin/Blogs"));
+const Skills = lazy(() => import("./pages/admin/Skills"));
+const EasterEggs = lazy(() => import("./pages/admin/EasterEggs"));
+const Logs = lazy(() => import("./pages/admin/Logs"));
+const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
+const SectionControls = lazy(() => import("./pages/admin/SectionControls"));
+const BrandingSettings = lazy(() => import("./pages/admin/BrandingSettings"));
+const ResumeSettings = lazy(() => import("./pages/admin/ResumeSettings"));
+const EasterEggsPublic = lazy(() => import("./pages/EasterEggsPublic"));
+import { AuthProvider } from "./contexts/AuthContext";
+import { SiteControlsProvider } from "@/contexts/SiteControlsContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import ErrorBoundary from "./components/ErrorBoundary";
+
+const queryClient = new QueryClient();
+
+import { EasterEggsProvider } from "./contexts/EasterEggsContext";
+import { BrandingProvider } from "./contexts/BrandingContext";
+import EasterEggEngine from "./components/EasterEggEngine";
+
+
+const App = () => (
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <EasterEggsProvider>
+          <SiteControlsProvider>
+            <BrandingProvider>
+              <EasterEggEngine />
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/blog/:slug" element={<BlogDetail />} />
+                      <Route path="/easter-eggs" element={<EasterEggsPublic />} />
+
+                      {/* Admin Routes */}
+                      <Route path="/admin/login" element={<Login />} />
+                      <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+                        <Route index element={<Dashboard />} />
+                        <Route path="projects" element={<Projects />} />
+                        <Route path="testimonials" element={<Testimonials />} />
+                        <Route path="messages" element={<Messages />} />
+                        <Route path="certificates" element={<Certificates />} />
+                        <Route path="blogs" element={<Blogs />} />
+                        <Route path="skills" element={<Skills />} />
+                        <Route path="resume" element={<ResumeSettings />} />
+                        <Route path="easter-eggs" element={<EasterEggs />} />
+                        <Route path="logs" element={<Logs />} />
+                        <Route path="section-controls" element={<SectionControls />} />
+                        <Route path="branding" element={<BrandingSettings />} />
+                      </Route>
+
+                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
+                </BrowserRouter>
+              </TooltipProvider>
+            </BrandingProvider>
+          </SiteControlsProvider>
+        </EasterEggsProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
+);
+
+export default App;

@@ -1,0 +1,225 @@
+/* Import Orbitron font for cyber-style text */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 222 47% 5%;
+    --foreground: 180 100% 95%;
+
+    --card: 222 47% 8%;
+    --card-foreground: 180 100% 95%;
+
+    --popover: 222 47% 8%;
+    --popover-foreground: 180 100% 95%;
+
+    --primary: 193 100% 50%;
+    --primary-foreground: 222 47% 5%;
+
+    --secondary: 271 76% 53%;
+    --secondary-foreground: 180 100% 95%;
+
+    --muted: 222 47% 15%;
+    --muted-foreground: 180 20% 70%;
+
+    --accent: 193 100% 50%;
+    --accent-foreground: 222 47% 5%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 47% 20%;
+    --input: 222 47% 20%;
+    --ring: 193 100% 50%;
+
+    --radius: 0.75rem;
+
+    --gradient-cyber: linear-gradient(135deg, hsl(193 100% 50%), hsl(271 76% 53%));
+    --gradient-dark: linear-gradient(180deg, hsl(222 47% 5%), hsl(222 47% 8%));
+    --glow-cyan: 0 0 20px hsl(193 100% 50% / 0.5);
+    --glow-purple: 0 0 20px hsl(271 76% 53% / 0.5);
+
+    --sidebar-background: 222 47% 5%;
+    --sidebar-foreground: 180 100% 95%;
+    --sidebar-primary: 193 100% 50%;
+    --sidebar-primary-foreground: 222 47% 5%;
+    --sidebar-accent: 222 47% 15%;
+    --sidebar-accent-foreground: 180 100% 95%;
+    --sidebar-border: 222 47% 20%;
+    --sidebar-ring: 193 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground overflow-x-hidden;
+    cursor: none;
+  }
+
+  /* Show cursor on admin pages */
+  body:has([data-admin-panel]) {
+    cursor: auto;
+  }
+
+  body:has([data-admin-panel]) * {
+    cursor: auto !important;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  a,
+  button {
+    cursor: none;
+  }
+
+  /* Override cursor for admin panel elements */
+  [data-admin-panel] a,
+  [data-admin-panel] button,
+  [data-admin-panel] input,
+  [data-admin-panel] textarea,
+  [data-admin-panel] select {
+    cursor: pointer !important;
+  }
+
+  [data-admin-panel] input[type="text"],
+  [data-admin-panel] input[type="email"],
+  [data-admin-panel] input[type="password"],
+  [data-admin-panel] textarea {
+    cursor: text !important;
+  }
+
+  /* Ensure cursor is visible in dialogs/modals */
+  [role="dialog"],
+  [role="dialog"] *,
+  [data-radix-dialog-content],
+  [data-radix-dialog-content] *,
+  [data-radix-dialog-overlay] {
+    cursor: auto !important;
+  }
+
+  [role="dialog"] button,
+  [data-radix-dialog-content] button,
+  [role="dialog"] a,
+  [data-radix-dialog-content] a {
+    cursor: pointer !important;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 4px;
+  }
+
+  :hover::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+@layer utilities {
+  .glow-cyan {
+    box-shadow: var(--glow-cyan);
+  }
+
+  .glow-purple {
+    box-shadow: var(--glow-purple);
+  }
+
+  .gradient-cyber {
+    background: var(--gradient-cyber);
+  }
+
+  .gradient-dark {
+    background: var(--gradient-dark);
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .text-gradient {
+    background: var(--gradient-cyber);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(200%);
+    }
+  }
+
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Logo Neon Glow Effect */
+  .logo-neon-glow {
+    filter: drop-shadow(0 0 8px rgba(0, 234, 255, 0.6)) drop-shadow(0 0 16px rgba(123, 92, 255, 0.4));
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .logo-neon-glow:hover {
+    filter: drop-shadow(0 0 12px rgba(0, 234, 255, 0.8)) drop-shadow(0 0 24px rgba(123, 92, 255, 0.6));
+  }
+
+  @keyframes pulse-glow {
+
+    0%,
+    100% {
+      filter: drop-shadow(0 0 8px rgba(0, 234, 255, 0.6)) drop-shadow(0 0 16px rgba(123, 92, 255, 0.4));
+    }
+
+    50% {
+      filter: drop-shadow(0 0 12px rgba(0, 234, 255, 0.8)) drop-shadow(0 0 20px rgba(123, 92, 255, 0.5));
+    }
+  }
+
+  /* Round Logo Image */
+  .logo-round {
+    border-radius: 50%;
+    object-fit: cover;
+  }
+}
