@@ -35,6 +35,7 @@ const queryClient = new QueryClient();
 import { EasterEggsProvider } from "./contexts/EasterEggsContext";
 import { BrandingProvider } from "./contexts/BrandingContext";
 import EasterEggEngine from "./components/EasterEggEngine";
+import ScrollToHashElement from "./components/ScrollToHashElement";
 
 // Supabase function URL
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -93,6 +94,7 @@ const App = () => {
                   <Toaster />
                   <Sonner />
                   <BrowserRouter>
+                    <ScrollToHashElement />
                     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                       <Routes>
                         <Route path="/" element={<Index />} />
