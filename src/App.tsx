@@ -43,9 +43,11 @@ const VERIFY_TURNSTILE_URL = `${SUPABASE_URL.replace('.supabase.co', '')}.functi
 
 const App = () => {
   const [verified, setVerified] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
 
   const handleVerified = async (token) => {
     try {
+      setVerificationError(null);
       // Call Supabase Edge Function for backend verification
       const res = await fetch(VERIFY_TURNSTILE_URL, {
         method: "POST",
@@ -67,18 +69,16 @@ const App = () => {
         setVerified(true);
       } else {
         console.error("Backend verification failed:", data);
-        alert("Verification failed. Please try again.");
-        window.location.reload();
+        setVerificationError(data.error || "Verification failed. Please try again.");
       }
     } catch (error) {
       console.error("Verification error:", error);
-      alert("Unable to verify. Please try again.");
-      window.location.reload();
+      setVerificationError("Unable to verify. Please try again.");
     }
   };
 
   if (!verified) {
-    return <SecurityCheck onVerified={handleVerified} />;
+    return <SecurityCheck onVerified={handleVerified} externalError={verificationError} />;
   }
 
   return (

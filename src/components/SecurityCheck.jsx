@@ -1,16 +1,25 @@
 import { useState, useEffect } from "react";
 import Turnstile from "react-turnstile";
 
-export default function SecurityCheck({ onVerified }) {
+export default function SecurityCheck({ onVerified, externalError }) {
     const [verified, setVerified] = useState(false);
     const [error, setError] = useState(null);
     const [scriptLoaded, setScriptLoaded] = useState(false);
+    const [widgetKey, setWidgetKey] = useState(0);
 
     // Use test key for localhost, production key for deployed site
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const siteKey = isLocalhost
         ? "1x00000000000000000000AA" // Test key for development
         : "0x4AAAAAACCnPOSXXplvy65O"; // Production key
+
+    useEffect(() => {
+        if (externalError) {
+            setError(externalError);
+            setWidgetKey(prev => prev + 1);
+            setVerified(false);
+        }
+    }, [externalError]);
 
     useEffect(() => {
         // Check if Turnstile script is already loaded
@@ -100,6 +109,7 @@ export default function SecurityCheck({ onVerified }) {
                 }}>
                     {scriptLoaded ? (
                         <Turnstile
+                            key={widgetKey}
                             sitekey={siteKey}
                             onVerify={handleSuccess}
                             onError={handleError}

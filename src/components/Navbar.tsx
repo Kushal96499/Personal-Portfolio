@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useSiteControls } from "@/contexts/SiteControlsContext";
 import { useBranding } from "@/contexts/BrandingContext";
@@ -87,9 +88,9 @@ const Navbar = ({ onLogoClick }: NavbarProps) => {
         {/* Desktop Menu */}
         <div className="hidden lg:flex items-center gap-4 xl:gap-6">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
-              href={link.href}
+              to={link.href}
               className="relative group text-foreground/80 hover:text-primary transition-all duration-300 font-medium text-sm xl:text-base whitespace-nowrap"
             >
               <span className="relative z-10">{link.label}</span>
@@ -97,7 +98,7 @@ const Navbar = ({ onLogoClick }: NavbarProps) => {
               <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-gradient-to-r from-primary to-secondary group-hover:w-full transition-all duration-300" />
               {/* Glow effect on hover */}
               <span className="absolute inset-0 bg-primary/10 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -116,14 +117,14 @@ const Navbar = ({ onLogoClick }: NavbarProps) => {
       {isMobileMenuOpen && (
         <div className="lg:hidden glass mt-4 mx-4 rounded-lg p-4 max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
-              href={link.href}
+              to={link.href}
               className="block py-3 px-2 text-foreground/80 hover:text-primary transition-colors border-b border-white/5 last:border-0"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </div>
       )}
