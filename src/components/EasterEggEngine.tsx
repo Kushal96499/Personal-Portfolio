@@ -8,35 +8,41 @@ import MatrixRain from "./effects/MatrixRain";
 import GlitchEffect from "./effects/GlitchEffect";
 import TrophyUnlock from "./effects/TrophyUnlock";
 import HackerMessage from "./effects/HackerMessage";
+import FooterGame from "./FooterGame";
 
 const EasterEggEngine = () => {
     const { eggs, unlockEgg, foundEggs } = useEasterEggs();
     const [keyBuffer, setKeyBuffer] = useState("");
     const bufferTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const [currentPath, setCurrentPath] = useState(window.location.pathname);
+    const [currentLocation, setCurrentLocation] = useState(window.location.pathname + window.location.hash);
     const [activeEffect, setActiveEffect] = useState<{
         type: string;
         eggName?: string;
         message?: string;
     } | null>(null);
 
-    // Track triggered eggs to prevent duplicate triggers in same session
-    const triggeredEggsRef = useRef<Set<string>>(new Set());
-
-    // Track path changes
+    // Track location changes for React Router navigation
     useEffect(() => {
-        const handlePathChange = () => {
-            setCurrentPath(window.location.pathname);
+        const checkLocation = () => {
+            const newLocation = window.location.pathname + window.location.hash;
+            if (newLocation !== currentLocation) {
+                setCurrentLocation(newLocation);
+            }
         };
 
-        window.addEventListener('popstate', handlePathChange);
-        window.addEventListener('hashchange', handlePathChange);
+        // Check every 100ms for location changes (React Router doesn't always fire events)
+        const interval = setInterval(checkLocation, 100);
+
+        // Also listen to popstate and hashchange
+        window.addEventListener('popstate', checkLocation);
+        window.addEventListener('hashchange', checkLocation);
 
         return () => {
-            window.removeEventListener('popstate', handlePathChange);
-            window.removeEventListener('hashchange', handlePathChange);
+            clearInterval(interval);
+            window.removeEventListener('popstate', checkLocation);
+            window.removeEventListener('hashchange', checkLocation);
         };
-    }, []);
+    }, [currentLocation]);
 
     // Sound effects - Generate cyber sounds using Web Audio API
     const playSound = (type: 'cyber_whoosh' | 'power_up' | 'digital_pulse' | 'scan_complete' | 'data_transfer' = 'cyber_whoosh') => {
@@ -45,7 +51,6 @@ const EasterEggEngine = () => {
 
             switch (type) {
                 case 'cyber_whoosh':
-                    // Sci-fi whoosh: sweeping frequency (0.5s)
                     const whooshOsc = audioContext.createOscillator();
                     const whooshGain = audioContext.createGain();
                     whooshOsc.connect(whooshGain);
@@ -64,7 +69,6 @@ const EasterEggEngine = () => {
                     break;
 
                 case 'power_up':
-                    // Power-up sound: rising tones with harmonics (2s for particles/trophy)
                     const powerOsc1 = audioContext.createOscillator();
                     const powerOsc2 = audioContext.createOscillator();
                     const powerGain = audioContext.createGain();
@@ -94,7 +98,6 @@ const EasterEggEngine = () => {
                     break;
 
                 case 'digital_pulse':
-                    // Digital pulse: rhythmic beeps (1.5s for glitch/matrix)
                     const pulseOsc = audioContext.createOscillator();
                     const pulseGain = audioContext.createGain();
                     pulseOsc.connect(pulseGain);
@@ -103,7 +106,6 @@ const EasterEggEngine = () => {
                     pulseOsc.type = 'square';
                     pulseOsc.frequency.value = 440;
 
-                    // Create pulsing pattern
                     const times = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.2];
                     times.forEach((time, i) => {
                         pulseGain.gain.setValueAtTime(i % 2 === 0 ? 0.2 : 0, audioContext.currentTime + time);
@@ -115,7 +117,6 @@ const EasterEggEngine = () => {
                     break;
 
                 case 'scan_complete':
-                    // Scan complete: quick chirp (0.4s for aura/glow)
                     const scanOsc = audioContext.createOscillator();
                     const scanGain = audioContext.createGain();
                     scanOsc.connect(scanGain);
@@ -135,7 +136,6 @@ const EasterEggEngine = () => {
                     break;
 
                 case 'data_transfer':
-                    // Data transfer: rapid ascending beeps (1.2s for hacker message)
                     const dataOsc = audioContext.createOscillator();
                     const dataGain = audioContext.createGain();
                     dataOsc.connect(dataGain);
@@ -144,7 +144,6 @@ const EasterEggEngine = () => {
                     dataOsc.type = 'sine';
                     dataOsc.frequency.setValueAtTime(400, audioContext.currentTime);
 
-                    // Create rapid frequency changes
                     for (let i = 0; i < 8; i++) {
                         const time = audioContext.currentTime + (i * 0.12);
                         dataOsc.frequency.setValueAtTime(400 + (i * 100), time);
@@ -163,37 +162,32 @@ const EasterEggEngine = () => {
         }
     };
 
-    // Execute Action
+    // Execute Action - Eggs are REUSABLE (trigger unlimited times, mark found once)
     const executeAction = (egg: any) => {
         if (!egg.is_active) return;
 
-        // Check if egg was already found (persisted in localStorage)
-        if (foundEggs.includes(egg.id)) return;
+        // Unlock the egg ONLY if not already found (one-time unlock)
+        if (!foundEggs.includes(egg.id)) {
+            unlockEgg(egg.id);
+        }
 
-        // Prevent duplicate triggers in the same session
-        if (triggeredEggsRef.current.has(egg.id)) return;
-        triggeredEggsRef.current.add(egg.id);
-
-        // Unlock the egg (updates database and local storage)
-        unlockEgg(egg.id);
-
-        // Perform action
+        // Perform action EVERY TIME (not just first time)
         switch (egg.action_type) {
             case "neon_particles":
                 setActiveEffect({ type: "neon_particles", eggName: egg.name });
-                playSound('power_up'); // 2s sound for 3s animation
+                playSound('power_up');
                 break;
             case "neon_aura":
                 setActiveEffect({ type: "neon_aura" });
-                playSound('scan_complete'); // 0.4s sound for quick effect
+                playSound('scan_complete');
                 break;
             case "rgb_glow":
                 setActiveEffect({ type: "rgb_glow" });
-                playSound('scan_complete'); // 0.4s sound for quick effect
+                playSound('scan_complete');
                 break;
             case "matrix_rain":
                 setActiveEffect({ type: "matrix_rain" });
-                playSound('digital_pulse'); // 1.5s pulsing sound
+                playSound('digital_pulse');
                 break;
             case "hacker_message":
                 setActiveEffect({
@@ -201,31 +195,35 @@ const EasterEggEngine = () => {
                     eggName: egg.name,
                     message: egg.description || "You found a secret!"
                 });
-                playSound('data_transfer'); // 1.2s data sound
+                playSound('data_transfer');
                 break;
             case "glitch_effect":
                 setActiveEffect({ type: "glitch_effect" });
-                playSound('digital_pulse'); // 1.5s pulsing sound
+                playSound('digital_pulse');
                 break;
             case "sound_ping":
-                playSound('cyber_whoosh'); // 0.5s sci-fi whoosh (no more boring beep!)
+                playSound('cyber_whoosh');
                 toast.success(`🎵 ${egg.name}`, {
                     description: egg.description,
                 });
                 break;
             case "trophy_unlock":
                 setActiveEffect({ type: "trophy_unlock", eggName: egg.name });
-                playSound('power_up'); // 2s triumphant sound
+                playSound('power_up');
+                break;
+            case "dino_game":
+                setActiveEffect({ type: "dino_game", eggName: egg.name });
+                playSound('power_up');
                 break;
             default:
                 toast.success(`You found: ${egg.name}!`, {
                     description: egg.description,
                 });
-                playSound('cyber_whoosh'); // Default sci-fi sound
+                playSound('cyber_whoosh');
         }
     };
 
-    // 1. Keyword Trigger
+    // 1. Keyword Trigger - GLOBAL
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             const char = e.key.toLowerCase();
@@ -234,7 +232,6 @@ const EasterEggEngine = () => {
             setKeyBuffer(prev => {
                 const newBuffer = (prev + char).slice(-20);
 
-                // Check for matches
                 eggs.forEach(egg => {
                     if (egg.trigger_type === "keyword" && egg.trigger_value && newBuffer.endsWith(egg.trigger_value.toLowerCase())) {
                         executeAction(egg);
@@ -252,7 +249,7 @@ const EasterEggEngine = () => {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [eggs]);
 
-    // 2. UI Interaction (data-ee)
+    // 2. UI Interaction (data-ee) - GLOBAL
     useEffect(() => {
         const handleUIInteraction = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
@@ -273,10 +270,10 @@ const EasterEggEngine = () => {
         return () => window.removeEventListener("click", handleUIInteraction);
     }, [eggs]);
 
-    // 3. Scroll to Bottom
+    // 3. Scroll to Bottom - GLOBAL
     useEffect(() => {
         const handleScroll = () => {
-            const scrolledToBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 20;
+            const scrolledToBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50;
 
             if (scrolledToBottom) {
                 eggs.forEach(egg => {
@@ -291,28 +288,51 @@ const EasterEggEngine = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [eggs]);
 
-    // 4. Hover Element (data-ee-hover)
+    // 4. Hover Element (data-ee-hover) - GLOBAL with debounce
     useEffect(() => {
-        const handleMouseOver = (e: MouseEvent) => {
+        const hoveredElements = new Set<string>();
+
+        const handleMouseEnter = (e: Event) => {
             const target = e.target as HTMLElement;
             const hoverElement = target.closest("[data-ee-hover]");
 
             if (hoverElement) {
                 const triggerValue = hoverElement.getAttribute("data-ee-hover");
 
-                eggs.forEach(egg => {
-                    if (egg.trigger_type === "hover_element" && egg.trigger_value === triggerValue) {
-                        executeAction(egg);
-                    }
-                });
+                if (triggerValue && !hoveredElements.has(triggerValue)) {
+                    hoveredElements.add(triggerValue);
+
+                    eggs.forEach(egg => {
+                        if (egg.trigger_type === "hover_element" && egg.trigger_value === triggerValue) {
+                            executeAction(egg);
+                        }
+                    });
+                }
             }
         };
 
-        window.addEventListener("mouseover", handleMouseOver);
-        return () => window.removeEventListener("mouseover", handleMouseOver);
+        const handleMouseLeave = (e: Event) => {
+            const target = e.target as HTMLElement;
+            const hoverElement = target.closest("[data-ee-hover]");
+
+            if (hoverElement) {
+                const triggerValue = hoverElement.getAttribute("data-ee-hover");
+                if (triggerValue) {
+                    hoveredElements.delete(triggerValue);
+                }
+            }
+        };
+
+        window.addEventListener("mouseenter", handleMouseEnter, true);
+        window.addEventListener("mouseleave", handleMouseLeave, true);
+
+        return () => {
+            window.removeEventListener("mouseenter", handleMouseEnter, true);
+            window.removeEventListener("mouseleave", handleMouseLeave, true);
+        };
     }, [eggs]);
 
-    // 5. Click Navigation Icon (data-ee)
+    // 5. Click Navigation Icon (data-ee) - GLOBAL
     useEffect(() => {
         const handleNavClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
@@ -333,20 +353,49 @@ const EasterEggEngine = () => {
         return () => window.removeEventListener("click", handleNavClick);
     }, [eggs]);
 
-    // 6. Navigate to Section Trigger
+    // 6. Navigate to Section - GLOBAL with /#section format support
     useEffect(() => {
-        eggs.forEach(egg => {
-            if (egg.trigger_type === "navigate_section" && egg.trigger_value) {
-                // Match both full path and hash-based navigation
-                const currentFullPath = window.location.pathname + window.location.hash;
+        const checkSectionTriggers = () => {
+            const currentHash = window.location.hash; // e.g. "#about"
+            const currentFullPath = window.location.pathname + window.location.hash; // e.g. "/#about"
 
-                // Exact match for route or hash
-                if (currentPath === egg.trigger_value || currentFullPath === egg.trigger_value) {
-                    executeAction(egg);
+            eggs.forEach(egg => {
+                if (egg.trigger_type === "navigate_section" && egg.trigger_value) {
+                    // Support multiple formats:
+                    // - "/#about" (preset format) -> match both "/#about" and "#about"
+                    // - "#about" (direct hash) -> match "#about"
+                    // - "about" (plain text) -> add "#" and match
+                    let match = false;
+
+                    if (egg.trigger_value.startsWith('/#')) {
+                        // Format: /#about - check both full path and hash
+                        match = currentFullPath === egg.trigger_value ||
+                            currentHash === egg.trigger_value.substring(1); // Remove leading /
+                    } else if (egg.trigger_value.startsWith('#')) {
+                        // Format: #about - check hash only
+                        match = currentHash === egg.trigger_value;
+                    } else {
+                        // Format: about - add # and check
+                        match = currentHash === `#${egg.trigger_value}`;
+                    }
+
+                    if (match) {
+                        executeAction(egg);
+                    }
                 }
-            }
-        });
-    }, [currentPath, eggs]);
+            });
+        };
+
+        // Check on mount and hash change
+        checkSectionTriggers();
+
+        const handleHashChange = () => {
+            checkSectionTriggers();
+        };
+
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, [eggs, currentLocation]); //  Re-check whenever eggs OR location changes
 
     // Render active effect
     const renderEffect = () => {
@@ -375,6 +424,8 @@ const EasterEggEngine = () => {
                         onComplete={handleComplete}
                     />
                 );
+            case "dino_game":
+                return <FooterGame onClose={handleComplete} />;
             default:
                 return null;
         }

@@ -30,9 +30,17 @@ export const TRIGGER_PRESETS = {
             { value: 'contact-submit', label: 'Contact Form Submit' },
             { value: 'blog-read', label: 'Blog Post Read' },
             { value: 'certificate-view', label: 'Certificate View' },
+            { value: 'nav-github', label: 'GitHub Icon' },
+            { value: 'nav-linkedin', label: 'LinkedIn Icon' },
+            { value: 'nav-email', label: 'Email Icon' },
+            { value: 'footer-github', label: 'Footer GitHub' },
+            { value: 'footer-linkedin', label: 'Footer LinkedIn' },
+            { value: 'footer-email', label: 'Footer Email' },
+            { value: 'main-logo', label: 'Main Logo' },
+            { value: 'threat-map', label: 'Threat Map Canvas' },
         ],
         requiresValue: true,
-        allowCustom: true,
+        allowCustom: false,
     },
     scroll_bottom: {
         label: 'Scroll to Bottom',
@@ -52,7 +60,7 @@ export const TRIGGER_PRESETS = {
             { value: 'profile-photo', label: 'Profile Photo' },
         ],
         requiresValue: true,
-        allowCustom: true,
+        allowCustom: false,
     },
     click_nav_icon: {
         label: 'Click Navigation Icon',
@@ -64,7 +72,7 @@ export const TRIGGER_PRESETS = {
             { value: 'main-logo', label: 'Main Logo' },
         ],
         requiresValue: true,
-        allowCustom: true,
+        allowCustom: false,
     },
     keyword: {
         label: 'Keyword',
@@ -116,6 +124,11 @@ export const ACTION_PRESETS = {
         label: 'Trophy Unlock',
         description: 'Animated trophy with confetti',
         icon: '🏆',
+    },
+    dino_game: {
+        label: 'Play Dino Game',
+        description: 'Launches the hidden Dino Runner game',
+        icon: '🦖',
     },
 } as const;
 

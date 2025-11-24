@@ -100,13 +100,13 @@ const HackerMessage = ({ title, message, onComplete }: HackerMessageProps) => {
                                 transition={{ duration: 0.3 }}
                             >
                                 <div className="text-[#00ff41]/60 text-xs mb-2">
-                                    [SYSTEM] Initializing secure connection...
+                                    [ROOT@SYSTEM] Initializing brute force attack...
                                 </div>
                                 <div className="text-[#00ff41]/60 text-xs mb-2">
-                                    [SYSTEM] Bypassing firewall... OK
+                                    [ROOT@SYSTEM] Bypassing mainframe security... SUCCESS
                                 </div>
                                 <div className="text-[#00ff41]/60 text-xs mb-4">
-                                    [SYSTEM] Access granted ✓
+                                    [ROOT@SYSTEM] Admin privileges acquired.
                                 </div>
                             </motion.div>
 

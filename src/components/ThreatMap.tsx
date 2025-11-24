@@ -108,6 +108,19 @@ const ThreatMap = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
+        // Handle context loss gracefully
+        const handleContextLost = (e: Event) => {
+            e.preventDefault();
+            console.warn('Canvas context lost, attempting recovery...');
+        };
+
+        const handleContextRestored = () => {
+            console.log('Canvas context restored successfully');
+        };
+
+        canvas.addEventListener('contextlost', handleContextLost);
+        canvas.addEventListener('contextrestored', handleContextRestored);
+
         const container = containerRef.current;
         const rect = container.getBoundingClientRect();
 
@@ -200,6 +213,12 @@ const ThreatMap = () => {
                 ctx.stroke();
             }
         });
+
+        // Cleanup event listeners
+        return () => {
+            canvas.removeEventListener('contextlost', handleContextLost);
+            canvas.removeEventListener('contextrestored', handleContextRestored);
+        };
     }, [attacks, loading]);
 
     // Handle resize
@@ -276,10 +295,12 @@ const ThreatMap = () => {
                             </div>
                         </div>
 
-                        {/* Canvas Container */}
+                        {/* Canvas Container with Easter Egg Trigger */}
                         <div
                             ref={containerRef}
-                            className="relative w-full h-[300px] md:aspect-[21/9] md:h-auto rounded-lg overflow-hidden bg-black/30 border border-primary/10"
+                            data-ee="threat-map"
+                            className="relative w-full h-[300px] md:aspect-[21/9] md:h-auto rounded-lg overflow-hidden bg-black/30 border border-primary/10 cursor-pointer hover:border-primary/30 transition-all"
+                            title="Click to reveal hidden secrets..."
                         >
                             <canvas
                                 ref={canvasRef}
