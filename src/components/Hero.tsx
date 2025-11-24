@@ -47,9 +47,9 @@ const Hero = () => {
     <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-3xl animate-glow" />
+        <div className="absolute top-20 left-10 w-48 h-48 sm:w-72 sm:h-72 bg-primary/20 rounded-full blur-3xl animate-float opacity-50 sm:opacity-100" />
+        <div className="absolute bottom-20 right-10 w-64 h-64 sm:w-96 sm:h-96 bg-secondary/20 rounded-full blur-3xl animate-float opacity-50 sm:opacity-100" style={{ animationDelay: "2s" }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] bg-accent/10 rounded-full blur-3xl animate-glow opacity-30 sm:opacity-100" />
       </div>
 
       <div className="container mx-auto px-4 z-10">
@@ -65,7 +65,7 @@ const Hero = () => {
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4"
+              className="text-[clamp(2.5rem,5vw,5rem)] font-bold mb-4 leading-tight"
               data-ee-hover="hero-name"
             >
               <span className="text-gradient">Kushal Kumawat</span>
@@ -75,7 +75,7 @@ const Hero = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="text-xl md:text-2xl lg:text-3xl text-muted-foreground mb-6 h-10"
+              className="text-[clamp(1.2rem,3vw,2rem)] text-muted-foreground mb-6 h-8 sm:h-10"
             >
               <span className="text-primary">{text}</span>
               <span className="animate-pulse">|</span>
@@ -85,7 +85,7 @@ const Hero = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.8 }}
-              className="text-base md:text-lg text-muted-foreground mb-8"
+              className="text-[clamp(0.9rem,2vw,1.1rem)] text-muted-foreground mb-8 max-w-lg mx-auto lg:mx-0"
             >
               Intern at Inlighn Tech & CodTech | BCA Student at Biyani College
             </motion.p>
@@ -94,12 +94,12 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9, duration: 0.8 }}
-              className="flex flex-wrap gap-4 justify-center lg:justify-start mb-8"
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8 w-full sm:w-auto px-4 sm:px-0"
             >
-              <Button size="lg" className="gradient-cyber glow-cyan">
+              <Button size="lg" className="gradient-cyber glow-cyan w-full sm:w-auto text-base py-6">
                 <a href="#projects">View Projects</a>
               </Button>
-              <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+              <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground w-full sm:w-auto text-base py-6">
                 <a href="#contact">Contact Me</a>
               </Button>
             </motion.div>

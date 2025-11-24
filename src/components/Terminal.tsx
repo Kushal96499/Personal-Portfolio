@@ -70,7 +70,7 @@ const Terminal = () => {
     }
 
     const currentCommand = commands[currentCommandIndex];
-    
+
     if (isTyping && currentCharIndex <= currentCommand.command.length) {
       const timeout = setTimeout(() => {
         setCurrentCharIndex(prev => prev + 1);
@@ -91,7 +91,7 @@ const Terminal = () => {
   return (
     <section className="py-20 relative">
       <div className="absolute inset-0 bg-gradient-dark opacity-50" />
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -130,9 +130,9 @@ const Terminal = () => {
             </div>
 
             {/* Terminal Content */}
-            <div className="p-6 font-mono text-sm bg-background/90 min-h-[400px]">
+            <div className="p-4 md:p-6 font-mono text-xs md:text-sm bg-background/90 min-h-[300px] md:min-h-[400px] overflow-x-auto scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent">
               {displayedCommands.map((cmd, index) => (
-                <div key={index} className="mb-6">
+                <div key={index} className="mb-6 min-w-max">
                   <div className="flex items-center gap-2 text-primary mb-2">
                     <span className="text-secondary">$</span>
                     <span>{cmd.command}</span>
@@ -143,22 +143,21 @@ const Terminal = () => {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: lineIndex * 0.1 }}
-                      className={`pl-4 ${
-                        line.includes("✓") ? "text-green-400" :
-                        line.includes("⚠") ? "text-yellow-400" :
-                        line.includes("✗") ? "text-red-400" :
-                        "text-muted-foreground"
-                      }`}
+                      className={`pl-4 ${line.includes("✓") ? "text-green-400" :
+                          line.includes("⚠") ? "text-yellow-400" :
+                            line.includes("✗") ? "text-red-400" :
+                              "text-muted-foreground"
+                        }`}
                     >
                       {line}
                     </motion.div>
                   ))}
                 </div>
               ))}
-              
+
               {/* Current typing command */}
               {isTyping && currentCommandIndex < commands.length && (
-                <div className="flex items-center gap-2 text-primary">
+                <div className="flex items-center gap-2 text-primary min-w-max">
                   <span className="text-secondary">$</span>
                   <span>
                     {commands[currentCommandIndex].command.substring(0, currentCharIndex)}

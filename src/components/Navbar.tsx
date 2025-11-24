@@ -85,12 +85,12 @@ const Navbar = ({ onLogoClick }: NavbarProps) => {
         </button>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-4 xl:gap-6">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="relative group text-foreground/80 hover:text-primary transition-all duration-300 font-medium"
+              className="relative group text-foreground/80 hover:text-primary transition-all duration-300 font-medium text-sm xl:text-base whitespace-nowrap"
             >
               <span className="relative z-10">{link.label}</span>
               {/* Animated underline */}
@@ -105,7 +105,7 @@ const Navbar = ({ onLogoClick }: NavbarProps) => {
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden"
+          className="lg:hidden"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X /> : <Menu />}
@@ -114,12 +114,12 @@ const Navbar = ({ onLogoClick }: NavbarProps) => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden glass mt-4 mx-4 rounded-lg p-4">
+        <div className="lg:hidden glass mt-4 mx-4 rounded-lg p-4 max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="block py-2 text-foreground/80 hover:text-primary transition-colors"
+              className="block py-3 px-2 text-foreground/80 hover:text-primary transition-colors border-b border-white/5 last:border-0"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {link.label}

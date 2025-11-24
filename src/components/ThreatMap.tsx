@@ -247,7 +247,7 @@ const ThreatMap = () => {
                     className="relative w-full max-w-6xl mx-auto"
                 >
                     {/* Main Map Card */}
-                    <div className="glass rounded-lg p-6 border-border/50 hover:glow-cyan transition-all duration-300 relative overflow-hidden">
+                    <div className="glass rounded-lg p-4 md:p-6 border-border/50 hover:glow-cyan transition-all duration-300 relative overflow-hidden">
                         {/* Loading State */}
                         {loading && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-md z-20 rounded-lg">
@@ -279,7 +279,7 @@ const ThreatMap = () => {
                         {/* Canvas Container */}
                         <div
                             ref={containerRef}
-                            className="relative w-full aspect-[16/9] md:aspect-[21/9] rounded-lg overflow-hidden bg-black/30 border border-primary/10"
+                            className="relative w-full h-[300px] md:aspect-[21/9] md:h-auto rounded-lg overflow-hidden bg-black/30 border border-primary/10"
                         >
                             <canvas
                                 ref={canvasRef}
@@ -293,39 +293,60 @@ const ThreatMap = () => {
                             <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 border-primary/40 rounded-br-lg pointer-events-none" />
                         </div>
 
-                        {/* Statistics Panel */}
-                        {!loading && (
-                            <div className="grid grid-cols-3 gap-3 mt-6">
-                                <div className="glass rounded-lg p-4 border border-primary/20 text-center hover:border-primary/40 transition-colors">
-                                    <div className="text-xs text-muted-foreground font-mono mb-1">TOTAL ATTACKS</div>
-                                    <div className="text-2xl font-bold text-primary font-mono">{totalAttacks.toLocaleString()}</div>
-                                </div>
-                                <div className="glass rounded-lg p-4 border border-primary/20 text-center hover:border-primary/40 transition-colors">
-                                    <div className="text-xs text-muted-foreground font-mono mb-1">ACTIVE THREATS</div>
-                                    <div className="text-2xl font-bold text-destructive font-mono">{attacks.length}</div>
-                                </div>
-                                <div className="glass rounded-lg p-4 border border-primary/20 text-center hover:border-primary/40 transition-colors">
-                                    <div className="text-xs text-muted-foreground font-mono mb-1">COUNTRIES</div>
-                                    <div className="text-2xl font-bold text-secondary font-mono">{countries.length}</div>
-                                </div>
-                            </div>
-                        )}
+                        {/* Statistics Panel - Fixed height to prevent layout shift */}
+                        <div className="grid grid-cols-3 gap-3 mt-6 min-h-[100px]">
+                            {loading ? (
+                                <>
+                                    {[1, 2, 3].map((i) => (
+                                        <div key={i} className="glass rounded-lg p-4 border border-primary/20 text-center animate-pulse">
+                                            <div className="h-4 bg-primary/10 rounded w-20 mx-auto mb-2" />
+                                            <div className="h-8 bg-primary/10 rounded w-16 mx-auto" />
+                                        </div>
+                                    ))}
+                                </>
+                            ) : (
+                                <>
+                                    <div className="glass rounded-lg p-4 border border-primary/20 text-center hover:border-primary/40 transition-colors">
+                                        <div className="text-xs text-muted-foreground font-mono mb-1">TOTAL ATTACKS</div>
+                                        <div className="text-xl md:text-2xl font-bold text-primary font-mono">{totalAttacks.toLocaleString()}</div>
+                                    </div>
+                                    <div className="glass rounded-lg p-4 border border-primary/20 text-center hover:border-primary/40 transition-colors">
+                                        <div className="text-xs text-muted-foreground font-mono mb-1">ACTIVE THREATS</div>
+                                        <div className="text-xl md:text-2xl font-bold text-destructive font-mono">{attacks.length}</div>
+                                    </div>
+                                    <div className="glass rounded-lg p-4 border border-primary/20 text-center hover:border-primary/40 transition-colors">
+                                        <div className="text-xs text-muted-foreground font-mono mb-1">COUNTRIES</div>
+                                        <div className="text-xl md:text-2xl font-bold text-secondary font-mono">{countries.length}</div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
 
                     {/* Recent Attacks List */}
-                    {!loading && attacks.length > 0 && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: 0.3 }}
-                            className="mt-6"
-                        >
-                            <h3 className="text-xl font-bold text-primary mb-4 font-orbitron flex items-center gap-2">
-                                <Shield className="w-5 h-5" />
-                                Recent Attack Activity
-                            </h3>
-                            <div className="glass rounded-lg p-4 border border-border/50 max-h-64 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent">
-                                {attacks.slice(-5).reverse().map(attack => (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
+                        className="mt-6"
+                    >
+                        <h3 className="text-xl font-bold text-primary mb-4 font-orbitron flex items-center gap-2">
+                            <Shield className="w-5 h-5" />
+                            Recent Attack Activity
+                        </h3>
+                        <div className="glass rounded-lg p-4 border border-border/50 h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent space-y-2">
+                            {loading ? (
+                                <div className="flex flex-col items-center justify-center h-full text-muted-foreground animate-pulse">
+                                    <Shield className="w-8 h-8 mb-2 opacity-50" />
+                                    <p className="text-sm">Initializing threat detection...</p>
+                                </div>
+                            ) : attacks.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                                    <Shield className="w-8 h-8 mb-2 opacity-50" />
+                                    <p className="text-sm">No recent threats detected</p>
+                                </div>
+                            ) : (
+                                attacks.slice().reverse().map(attack => (
                                     <motion.div
                                         key={attack.id}
                                         initial={{ opacity: 0, x: -20 }}
@@ -352,10 +373,10 @@ const ThreatMap = () => {
                                             </div>
                                         </div>
                                     </motion.div>
-                                ))}
-                            </div>
-                        </motion.div>
-                    )}
+                                ))
+                            )}
+                        </div>
+                    </motion.div>
                 </motion.div>
             </div>
         </section>

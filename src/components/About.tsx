@@ -51,12 +51,12 @@ const About = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: index * 0.2 }}
               viewport={{ once: true }}
-              className="flex gap-6 mb-8 relative"
+              className="flex flex-col sm:flex-row gap-6 mb-8 relative"
             >
-              <div className="glass p-4 rounded-lg flex-shrink-0 glow-cyan">
+              <div className="glass p-4 rounded-lg flex-shrink-0 glow-cyan w-16 h-16 flex items-center justify-center mx-auto sm:mx-0">
                 {item.icon}
               </div>
-              <div className="glass p-6 rounded-lg flex-1">
+              <div className="glass p-6 rounded-lg flex-1 text-center sm:text-left">
                 <h3 className="text-xl font-bold mb-2">{item.title}</h3>
                 <p className="text-primary mb-2">{item.period}</p>
                 <p className="text-muted-foreground">{item.description}</p>

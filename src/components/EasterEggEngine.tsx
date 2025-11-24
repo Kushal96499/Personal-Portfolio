@@ -10,7 +10,7 @@ import TrophyUnlock from "./effects/TrophyUnlock";
 import HackerMessage from "./effects/HackerMessage";
 
 const EasterEggEngine = () => {
-    const { eggs, unlockEgg } = useEasterEggs();
+    const { eggs, unlockEgg, foundEggs } = useEasterEggs();
     const [keyBuffer, setKeyBuffer] = useState("");
     const bufferTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -167,7 +167,10 @@ const EasterEggEngine = () => {
     const executeAction = (egg: any) => {
         if (!egg.is_active) return;
 
-        // Prevent duplicate triggers
+        // Check if egg was already found (persisted in localStorage)
+        if (foundEggs.includes(egg.id)) return;
+
+        // Prevent duplicate triggers in the same session
         if (triggeredEggsRef.current.has(egg.id)) return;
         triggeredEggsRef.current.add(egg.id);
 
