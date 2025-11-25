@@ -17,27 +17,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const SESSION_TIMEOUT = 60 * 60 * 1000; // 60 minutes
-
-    const checkSessionAge = async (currentSession: Session | null) => {
-        if (!currentSession?.user?.last_sign_in_at) return;
-
-        const lastSignIn = new Date(currentSession.user.last_sign_in_at).getTime();
-        const now = Date.now();
-
-        if (now - lastSignIn > SESSION_TIMEOUT) {
-            await signOut();
-            // Only show toast if user is on an admin page
-            if (window.location.pathname.startsWith('/admin')) {
-                toast.error('Session expired. Please login again.');
-            }
-        }
-    };
-
     useEffect(() => {
         // Get initial Supabase session
         supabase.auth.getSession().then(({ data: { session } }) => {
-            checkSessionAge(session);
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
@@ -47,7 +29,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
-            checkSessionAge(session);
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
@@ -58,7 +39,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const signOut = async () => {
         try {
-
             // Sign out from Supabase
             const { error } = await supabase.auth.signOut();
             if (error) throw error;
@@ -67,6 +47,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setSession(null);
             toast.success('Logged out successfully');
         } catch (error: any) {
+            // Ignore "Auth session missing" error as it means we're already logged out
+            if (error.message?.includes('Auth session missing')) {
+                setUser(null);
+                setSession(null);
+                return;
+            }
+            console.error('Logout error:', error);
             toast.error('Error logging out: ' + error.message);
         }
     };
