@@ -191,13 +191,22 @@ const EasterEggsPublic = () => {
                                                 <motion.div
                                                     initial={{ opacity: 0, scale: 0.9 }}
                                                     animate={{ opacity: 1, scale: 1 }}
-                                                    className="pt-2"
+                                                    className="pt-2 space-y-2"
                                                 >
                                                     <div className="bg-green-500/10 p-3 rounded-md border border-green-500/20">
                                                         <p className="text-xs text-green-500 font-mono text-center">
                                                             STATUS: UNLOCKED ✓
                                                         </p>
                                                     </div>
+                                                    <Button
+                                                        className="w-full bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50"
+                                                        onClick={() => {
+                                                            // Dispatch custom event to trigger egg
+                                                            window.dispatchEvent(new CustomEvent('trigger_egg', { detail: egg }));
+                                                        }}
+                                                    >
+                                                        Run Effect
+                                                    </Button>
                                                 </motion.div>
                                             )}
                                         </CardContent>

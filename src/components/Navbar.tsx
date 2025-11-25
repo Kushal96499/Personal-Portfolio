@@ -91,6 +91,18 @@ const Navbar = ({ onLogoClick }: NavbarProps) => {
             <Link
               key={link.href}
               to={link.href}
+              data-ee={`nav-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+              onClick={() => {
+                if (link.href.includes('#')) {
+                  const sectionId = link.href.split('#')[1];
+                  // If we are already on the home page, just scroll
+                  if (window.location.pathname === '/') {
+                    import('@/utils/scrollManager').then(({ scrollToSection }) => {
+                      scrollToSection(sectionId);
+                    });
+                  }
+                }
+              }}
               className="relative group text-foreground/80 hover:text-primary transition-all duration-300 font-medium text-sm xl:text-base whitespace-nowrap"
             >
               <span className="relative z-10">{link.label}</span>
@@ -120,8 +132,19 @@ const Navbar = ({ onLogoClick }: NavbarProps) => {
             <Link
               key={link.href}
               to={link.href}
+              data-ee={`nav-mobile-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
               className="block py-3 px-2 text-foreground/80 hover:text-primary transition-colors border-b border-white/5 last:border-0"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                if (link.href.includes('#')) {
+                  const sectionId = link.href.split('#')[1];
+                  if (window.location.pathname === '/') {
+                    import('@/utils/scrollManager').then(({ scrollToSection }) => {
+                      scrollToSection(sectionId);
+                    });
+                  }
+                }
+              }}
             >
               {link.label}
             </Link>

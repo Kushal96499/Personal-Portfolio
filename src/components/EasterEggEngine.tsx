@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEasterEggs } from "@/contexts/EasterEggsContext";
 import { toast } from "sonner";
+import { scrollToSection, scrollToSectionWithRetry } from "@/utils/scrollManager";
 import NeonParticles from "./effects/NeonParticles";
 import NeonAura from "./effects/NeonAura";
 import RGBGlow from "./effects/RGBGlow";
@@ -12,37 +14,16 @@ import FooterGame from "./FooterGame";
 
 const EasterEggEngine = () => {
     const { eggs, unlockEgg, foundEggs } = useEasterEggs();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [keyBuffer, setKeyBuffer] = useState("");
     const bufferTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const [currentLocation, setCurrentLocation] = useState(window.location.pathname + window.location.hash);
+    const isFirstRun = useRef(true);
     const [activeEffect, setActiveEffect] = useState<{
         type: string;
         eggName?: string;
         message?: string;
     } | null>(null);
-
-    // Track location changes for React Router navigation
-    useEffect(() => {
-        const checkLocation = () => {
-            const newLocation = window.location.pathname + window.location.hash;
-            if (newLocation !== currentLocation) {
-                setCurrentLocation(newLocation);
-            }
-        };
-
-        // Check every 100ms for location changes (React Router doesn't always fire events)
-        const interval = setInterval(checkLocation, 100);
-
-        // Also listen to popstate and hashchange
-        window.addEventListener('popstate', checkLocation);
-        window.addEventListener('hashchange', checkLocation);
-
-        return () => {
-            clearInterval(interval);
-            window.removeEventListener('popstate', checkLocation);
-            window.removeEventListener('hashchange', checkLocation);
-        };
-    }, [currentLocation]);
 
     // Sound effects - Generate cyber sounds using Web Audio API
     const playSound = (type: 'cyber_whoosh' | 'power_up' | 'digital_pulse' | 'scan_complete' | 'data_transfer' = 'cyber_whoosh') => {
@@ -173,6 +154,24 @@ const EasterEggEngine = () => {
 
         // Perform action EVERY TIME (not just first time)
         switch (egg.action_type) {
+            case "NavigateToSection":
+                const sectionId = egg.action_params?.sectionId;
+                if (sectionId) {
+                    if (window.location.pathname !== '/') {
+                        navigate('/');
+                        // Use retry mechanism for cross-page navigation
+                        setTimeout(() => scrollToSectionWithRetry(sectionId), 100);
+                    } else {
+                        scrollToSectionWithRetry(sectionId);
+                    }
+                }
+                break;
+            case "NavigateToPage":
+                const pageUrl = egg.action_params?.pageUrl;
+                if (pageUrl) {
+                    navigate(pageUrl);
+                }
+                break;
             case "neon_particles":
                 setActiveEffect({ type: "neon_particles", eggName: egg.name });
                 playSound('power_up');
@@ -247,7 +246,7 @@ const EasterEggEngine = () => {
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [eggs]);
+    }, [eggs, location]); // Re-bind on location change
 
     // 2. UI Interaction (data-ee) - GLOBAL
     useEffect(() => {
@@ -268,7 +267,7 @@ const EasterEggEngine = () => {
 
         window.addEventListener("click", handleUIInteraction);
         return () => window.removeEventListener("click", handleUIInteraction);
-    }, [eggs]);
+    }, [eggs, location]); // Re-bind on location change
 
     // 3. Scroll to Bottom - GLOBAL
     useEffect(() => {
@@ -286,7 +285,7 @@ const EasterEggEngine = () => {
 
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
-    }, [eggs]);
+    }, [eggs, location]); // Re-bind on location change
 
     // 4. Hover Element (data-ee-hover) - GLOBAL with debounce
     useEffect(() => {
@@ -330,7 +329,7 @@ const EasterEggEngine = () => {
             window.removeEventListener("mouseenter", handleMouseEnter, true);
             window.removeEventListener("mouseleave", handleMouseLeave, true);
         };
-    }, [eggs]);
+    }, [eggs, location]); // Re-bind on location change
 
     // 5. Click Navigation Icon (data-ee) - GLOBAL
     useEffect(() => {
@@ -351,16 +350,32 @@ const EasterEggEngine = () => {
 
         window.addEventListener("click", handleNavClick);
         return () => window.removeEventListener("click", handleNavClick);
-    }, [eggs]);
+    }, [eggs, location]); // Re-bind on location change
+
+    // Track previous pathname to detect cross-page navigation
+    const previousPathname = useRef(location.pathname);
 
     // 6. Navigate to Section - GLOBAL with /#section format support
     useEffect(() => {
+        // Skip on initial mount (reload) to prevent auto-run
+        if (isFirstRun.current) {
+            isFirstRun.current = false;
+            previousPathname.current = location.pathname;
+            return;
+        }
+
         const checkSectionTriggers = () => {
-            const currentHash = window.location.hash; // e.g. "#about"
-            const currentFullPath = window.location.pathname + window.location.hash; // e.g. "/#about"
+            const currentHash = location.hash; // e.g. "#about"
+            const currentFullPath = location.pathname + location.hash; // e.g. "/#about"
+            const isNewPage = previousPathname.current !== location.pathname;
 
             eggs.forEach(egg => {
-                if (egg.trigger_type === "navigate_section" && egg.trigger_value) {
+                // Trigger if:
+                // 1. Egg is NOT found yet (always trigger)
+                // 2. OR User navigated from a different page (allow re-trigger for effect)
+                const shouldTrigger = !foundEggs.includes(egg.id) || isNewPage;
+
+                if (egg.trigger_type === "navigate_section" && egg.trigger_value && shouldTrigger) {
                     // Support multiple formats:
                     // - "/#about" (preset format) -> match both "/#about" and "#about"
                     // - "#about" (direct hash) -> match "#about"
@@ -384,18 +399,26 @@ const EasterEggEngine = () => {
                     }
                 }
             });
+
+            // Update previous pathname after checking
+            previousPathname.current = location.pathname;
         };
 
-        // Check on mount and hash change
         checkSectionTriggers();
+    }, [eggs, location]); // Re-bind on location change
 
-        const handleHashChange = () => {
-            checkSectionTriggers();
+    // 7. Custom Event Trigger (for Run button) - GLOBAL
+    useEffect(() => {
+        const handleCustomTrigger = (e: CustomEvent) => {
+            const egg = e.detail;
+            if (egg) {
+                executeAction(egg);
+            }
         };
 
-        window.addEventListener('hashchange', handleHashChange);
-        return () => window.removeEventListener('hashchange', handleHashChange);
-    }, [eggs, currentLocation]); //  Re-check whenever eggs OR location changes
+        window.addEventListener('trigger_egg', handleCustomTrigger as EventListener);
+        return () => window.removeEventListener('trigger_egg', handleCustomTrigger as EventListener);
+    }, [eggs]);
 
     // Render active effect
     const renderEffect = () => {

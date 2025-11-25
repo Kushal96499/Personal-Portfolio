@@ -28,457 +28,363 @@ interface Obstacle {
   y: number;
   width: number;
   height: number;
+  type: 'cactus_small' | 'cactus_large' | 'cactus_group';
 }
 
 const FooterGame = ({ onClose }: FooterGameProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
-  const [highScore, setHighScore] = useState(() => {
-    return parseInt(localStorage.getItem("dinoRunnerHighScore") || "0");
-  });
+  const [highScore, setHighScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
 
   const audioContextRef = useRef<AudioContext | null>(null);
+  const requestRef = useRef<number>();
+  const lastTimeRef = useRef<number>(0);
+
+  // Game Constants (Chrome Dino Specs)
+  const GRAVITY = 0.6;
+  const JUMP_VELOCITY = -14; // Tuned for snappy jump
+  const GROUND_HEIGHT = 20; // Lower ground for more vertical space
+  const INITIAL_SPEED = 9; // Slightly slower start for better mobile reaction
+  const SPEED_SCALE = 0.001; // Speed increases by 1 every 1000 pixels (approx)
+  const MAX_SPEED = 20;
 
   const gameStateRef = useRef({
     dino: {
       x: 50,
       y: 0,
-      width: 30,
-      height: 40,
-      velocityY: 0,
+      width: 44,
+      height: 47,
+      velocity: 0,
       isJumping: false,
     },
     obstacles: [] as Obstacle[],
     particles: [] as Particle[],
-    trail: [] as TrailPoint[],
-    ground: 250,
-    gravity: 0.6,
-    jumpForce: 12,
-    speed: 6,
-    obstacleTimer: 0,
-    obstacleSpawnTime: 120,
+    groundY: 0,
+    speed: INITIAL_SPEED,
     score: 0,
-    frameCount: 0,
-    speedIncreaseTimer: 0,
-    animationId: null as number | null,
+    distance: 0,
   });
 
-  // Web Audio API sound effects
-  const playSound = (frequency: number, duration: number, type: "sine" | "square" | "sawtooth" = "sine") => {
+  // Sound Effects
+  const playSound = (frequency: number, type: "sine" | "square" | "sawtooth", duration: number) => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
-
     const ctx = audioContextRef.current;
-    const oscillator = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(ctx.destination);
-
-    oscillator.type = type;
-    oscillator.frequency.value = frequency;
-
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
-
-    oscillator.start(ctx.currentTime);
-    oscillator.stop(ctx.currentTime + duration);
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
   };
 
-  const playJumpSound = () => {
-    playSound(400, 0.1, "square");
-  };
+  const playJumpSound = () => playSound(350, "square", 0.1);
+  const playScoreSound = () => playSound(500, "sine", 0.15);
+  const playGameOverSound = () => playSound(150, "sawtooth", 0.3);
 
-  const playLandSound = () => {
-    playSound(200, 0.15, "sine");
-  };
+  // Initialize High Score
+  useEffect(() => {
+    const saved = localStorage.getItem("dinoRunnerHighScoreV2");
+    if (saved) setHighScore(parseInt(saved));
+  }, []);
 
-  const playGameOverSound = () => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-
-    const ctx = audioContextRef.current;
-    
-    // Create descending tone for game over
-    const oscillator = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(ctx.destination);
-
-    oscillator.type = "sawtooth";
-    oscillator.frequency.setValueAtTime(400, ctx.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.5);
-
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-
-    oscillator.start(ctx.currentTime);
-    oscillator.stop(ctx.currentTime + 0.5);
-  };
-
-  const createParticles = (x: number, y: number, count: number, color: string) => {
-    const particles: Particle[] = [];
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = Math.random() * 2 + 0.5;
-      particles.push({
-        x,
-        y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 1.5,
-        life: 1,
-        maxLife: 20 + Math.random() * 10,
-        color,
-      });
-    }
-    return particles;
-  };
-
+  // Main Game Loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const resizeCanvas = () => {
-      canvas.width = Math.min(600, window.innerWidth - 40);
-      canvas.height = 300;
-      gameStateRef.current.ground = canvas.height - 50;
-      gameStateRef.current.dino.y = gameStateRef.current.ground - gameStateRef.current.dino.height;
-    };
+    const resize = () => {
+      const parent = canvas.parentElement;
+      if (parent) {
+        // Responsive width: Fill parent container
+        canvas.width = parent.clientWidth;
+        // Responsive height: Max 250px, but shorter on small screens to fit landscape
+        canvas.height = Math.min(250, window.innerHeight * 0.4);
 
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
+        gameStateRef.current.groundY = canvas.height - GROUND_HEIGHT;
 
-    const gameState = gameStateRef.current;
-
-    const jump = () => {
-      const groundY = gameState.ground - gameState.dino.height;
-      if (gameState.dino.y >= groundY && !isGameOver && isStarted) {
-        gameState.dino.isJumping = true;
-        gameState.dino.velocityY = -gameState.jumpForce;
-        
-        playJumpSound();
-        
-        // Jump particles (reduced count)
-        const jumpParticles = createParticles(
-          gameState.dino.x + gameState.dino.width / 2,
-          gameState.dino.y + gameState.dino.height,
-          5,
-          "hsl(193, 100%, 50%)"
-        );
-        gameState.particles.push(...jumpParticles);
-      }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space" || e.code === "ArrowUp") {
-        e.preventDefault();
-        if (!isStarted) {
-          setIsStarted(true);
-        } else if (isGameOver) {
-          handleRestart();
-        } else {
-          jump();
+        // Keep dino on ground during resize
+        if (!gameStateRef.current.dino.isJumping) {
+          gameStateRef.current.dino.y = gameStateRef.current.groundY - gameStateRef.current.dino.height;
         }
       }
     };
 
-    const handleTouch = (e: TouchEvent) => {
-      e.preventDefault();
-      
-      if (!isStarted) {
-        setIsStarted(true);
-      } else if (isGameOver) {
-        handleRestart();
-      } else {
-        jump();
+    // Initial resize and listener
+    resize();
+    window.addEventListener("resize", resize);
+
+    const spawnObstacle = () => {
+      const state = gameStateRef.current;
+      const minGap = 600; // Minimum distance between obstacles
+      const maxGap = 1200;
+
+      const lastObstacle = state.obstacles[state.obstacles.length - 1];
+
+      // Spawn further away on wider screens, but keep safe distance on mobile
+      const spawnBuffer = Math.max(600, canvas.width);
+      const spawnX = canvas.width + (Math.random() * (maxGap - minGap) + minGap);
+
+      // Only spawn if the last obstacle is far enough OR if there are no obstacles
+      // AND ensure we don't spawn immediately on top of the player (check canvas.width)
+      if (!lastObstacle || (lastObstacle.x < canvas.width - minGap)) {
+
+        // Safety check: Don't spawn if the calculated spawnX is too close to an existing one
+        // (Double check logic)
+        if (lastObstacle && spawnX < lastObstacle.x + minGap) {
+          return;
+        }
+
+        const typeRand = Math.random();
+        let width = 30;
+        let height = 50;
+        let type: Obstacle['type'] = 'cactus_small';
+
+        if (typeRand > 0.8) {
+          type = 'cactus_group';
+          width = 60;
+          height = 50;
+        } else if (typeRand > 0.6) {
+          type = 'cactus_large';
+          width = 35;
+          height = 65; // Taller cactus
+        }
+
+        state.obstacles.push({
+          x: lastObstacle ? Math.max(lastObstacle.x + minGap, spawnX) : Math.max(canvas.width, 800), // First obstacle at least 800px away
+          y: state.groundY - height,
+          width,
+          height,
+          type
+        });
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    canvas.addEventListener("touchstart", handleTouch);
+    const update = (deltaTime: number) => {
+      if (!isStarted || isGameOver) return;
 
-    const checkCollision = () => {
-      const dino = gameState.dino;
+      const state = gameStateRef.current;
+      // Normalize speed for frame rate (target 60fps -> 16.67ms)
+      const timeScale = deltaTime / 16.67;
 
-      for (const obstacle of gameState.obstacles) {
-        // AABB Collision Detection (Chrome Dino method)
+      // 1. Update Speed & Score
+      state.distance += state.speed * timeScale;
+      // Slow down score: Divide by 40 instead of 10
+      const newScore = Math.floor(state.distance / 40);
+
+      // Only update state/react if score actually changed
+      if (newScore > state.score) {
+        if (newScore % 100 === 0) {
+          playScoreSound();
+          state.speed = Math.min(MAX_SPEED, state.speed + 0.5);
+        }
+        state.score = newScore;
+        setScore(newScore);
+      }
+
+      // 2. Physics (Dino)
+      state.dino.velocity += GRAVITY * timeScale;
+      state.dino.y += state.dino.velocity * timeScale;
+
+      const groundLevel = state.groundY - state.dino.height;
+      if (state.dino.y >= groundLevel) {
+        state.dino.y = groundLevel;
+        state.dino.velocity = 0;
+        state.dino.isJumping = false;
+      }
+
+      // 3. Obstacles
+      spawnObstacle();
+      state.obstacles.forEach(obs => {
+        obs.x -= state.speed * timeScale;
+      });
+      // Remove off-screen obstacles
+      if (state.obstacles.length > 0 && state.obstacles[0].x < -100) {
+        state.obstacles.shift();
+      }
+
+      // 4. Collision Detection (AABB with padding)
+      const padding = 10; // More forgiving hitbox for mobile
+      const dinoHitbox = {
+        x: state.dino.x + padding,
+        y: state.dino.y + padding,
+        w: state.dino.width - (padding * 2),
+        h: state.dino.height - (padding * 2)
+      };
+
+      for (const obs of state.obstacles) {
+        const obsHitbox = {
+          x: obs.x + padding,
+          y: obs.y + padding,
+          w: obs.width - (padding * 2),
+          h: obs.height - (padding * 2)
+        };
+
         if (
-          dino.x < obstacle.x + obstacle.width &&
-          dino.x + dino.width > obstacle.x &&
-          dino.y < obstacle.y + obstacle.height &&
-          dino.y + dino.height > obstacle.y
+          dinoHitbox.x < obsHitbox.x + obsHitbox.w &&
+          dinoHitbox.x + dinoHitbox.w > obsHitbox.x &&
+          dinoHitbox.y < obsHitbox.y + obsHitbox.h &&
+          dinoHitbox.y + dinoHitbox.h > obsHitbox.y
         ) {
-          return true;
+          handleGameOver();
         }
       }
-      return false;
     };
 
-    const handleRestart = () => {
-      gameState.obstacles = [];
-      gameState.particles = [];
-      gameState.trail = [];
-      gameState.score = 0;
-      gameState.speed = 6;
-      gameState.obstacleTimer = 0;
-      gameState.obstacleSpawnTime = 80 + Math.random() * 40; // 1.3-2.0 seconds at 60fps
-      gameState.speedIncreaseTimer = 0;
-      gameState.frameCount = 0;
-      gameState.dino.y = gameState.ground - gameState.dino.height;
-      gameState.dino.velocityY = 0;
-      gameState.dino.isJumping = false;
-      setScore(0);
-      setIsGameOver(false);
-      setIsStarted(true);
-    };
-
-    const gameLoop = () => {
-      if (!canvas || !ctx || !isStarted || isGameOver) {
-        return;
-      }
-
-      gameState.frameCount++;
-
-      // Clear canvas
-      ctx.fillStyle = "hsl(222, 47%, 5%)";
+    const draw = () => {
+      // Clear
+      ctx.fillStyle = "#1a1a1a"; // Dark background
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw grid background (optimized - draw every 40px instead of 20px)
-      ctx.strokeStyle = "hsl(222, 47%, 15%)";
+      const state = gameStateRef.current;
+
+      // Draw Grid (Optimized: larger spacing)
+      ctx.strokeStyle = "hsl(222, 47%, 10%)"; // Very subtle
       ctx.lineWidth = 1;
-      for (let i = 0; i < canvas.width; i += 40) {
+      // Vertical lines every 100px
+      for (let i = 0; i < canvas.width; i += 100) {
         ctx.beginPath();
         ctx.moveTo(i, 0);
         ctx.lineTo(i, canvas.height);
         ctx.stroke();
       }
-      for (let i = 0; i < canvas.height; i += 40) {
+      // Horizontal lines every 100px
+      for (let i = 0; i < canvas.height; i += 100) {
         ctx.beginPath();
         ctx.moveTo(0, i);
         ctx.lineTo(canvas.width, i);
         ctx.stroke();
       }
 
-      // Update dino physics (Chrome Dino style)
-      gameState.dino.velocityY += gameState.gravity;
-      gameState.dino.y += gameState.dino.velocityY;
-
-      // Ground collision
-      const groundY = gameState.ground - gameState.dino.height;
-      if (gameState.dino.y >= groundY) {
-        gameState.dino.y = groundY;
-        gameState.dino.velocityY = 0;
-        
-        if (gameState.dino.isJumping) {
-          gameState.dino.isJumping = false;
-          playLandSound();
-          
-          // Land particles (reduced count)
-          const landParticles = createParticles(
-            gameState.dino.x + gameState.dino.width / 2,
-            gameState.dino.y + gameState.dino.height,
-            6,
-            "hsl(271, 76%, 53%)"
-          );
-          gameState.particles.push(...landParticles);
-        }
-      }
-
-      // Update trail (only every 2 frames for performance)
-      if (gameState.frameCount % 2 === 0) {
-        gameState.trail.push({
-          x: gameState.dino.x + gameState.dino.width / 2,
-          y: gameState.dino.y + gameState.dino.height / 2,
-          alpha: 1,
-        });
-      }
-
-      // Limit trail length and fade
-      gameState.trail = gameState.trail.slice(-15);
-      gameState.trail.forEach((point) => {
-        point.alpha *= 0.9;
-      });
-
-      // Draw trail (optimized)
-      if (gameState.trail.length > 0) {
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "hsl(193, 100%, 50%)";
-        for (let i = 0; i < gameState.trail.length; i++) {
-          const point = gameState.trail[i];
-          const size = (i / gameState.trail.length) * 3 + 1.5;
-          ctx.fillStyle = `hsla(193, 100%, 50%, ${point.alpha * 0.5})`;
-          ctx.beginPath();
-          ctx.arc(point.x, point.y, size, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.shadowBlur = 0;
-      }
-
-      // Draw dino (optimized shadow)
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = "hsl(193, 100%, 50%)";
-      ctx.fillStyle = "hsl(193, 100%, 50%)";
-      ctx.fillRect(gameState.dino.x, gameState.dino.y, gameState.dino.width, gameState.dino.height);
-      
-      // Dino eye
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = "hsl(222, 47%, 5%)";
-      ctx.fillRect(gameState.dino.x + 20, gameState.dino.y + 8, 5, 5);
-
-      // Spawn obstacles (1.3-2.0 seconds random interval)
-      gameState.obstacleTimer++;
-      if (gameState.obstacleTimer >= gameState.obstacleSpawnTime) {
-        gameState.obstacleTimer = 0;
-        gameState.obstacleSpawnTime = 80 + Math.random() * 40; // Random 1.3-2.0s at 60fps
-        
-        const width = 20 + Math.random() * 20; // 20-40px
-        const height = 40 + Math.random() * 20; // 40-60px
-        
-        // Check for overlapping spawn
-        const lastObstacle = gameState.obstacles[gameState.obstacles.length - 1];
-        const minDistance = 250;
-        
-        if (!lastObstacle || canvas.width - lastObstacle.x >= minDistance) {
-          gameState.obstacles.push({
-            x: canvas.width,
-            y: gameState.ground - height,
-            width,
-            height,
-          });
-        }
-      }
-
-      // Update obstacles (optimized rendering)
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = "hsl(271, 76%, 53%)";
-      ctx.fillStyle = "hsl(271, 76%, 53%)";
-      
-      gameState.obstacles = gameState.obstacles.filter((obstacle) => {
-        obstacle.x -= gameState.speed;
-        
-        // Draw obstacle
-        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-
-        return obstacle.x + obstacle.width > 0;
-      });
-      
-      ctx.shadowBlur = 0;
-
-      // Update particles (limit to 30 max for performance)
-      if (gameState.particles.length > 30) {
-        gameState.particles = gameState.particles.slice(-30);
-      }
-      
-      gameState.particles = gameState.particles.filter((particle) => {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-        particle.vy += 0.2; // Gravity
-        particle.life--;
-
-        if (particle.life > 0) {
-          const alpha = particle.life / particle.maxLife;
-          ctx.fillStyle = particle.color.replace(")", `, ${alpha})`).replace("hsl", "hsla");
-          ctx.beginPath();
-          ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
-          ctx.fill();
-          return true;
-        }
-        return false;
-      });
-
-      // Draw ground (optimized)
-      ctx.strokeStyle = "hsl(193, 100%, 50%)";
-      ctx.lineWidth = 2;
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = "hsl(193, 100%, 50%)";
+      // Draw Ground Line
       ctx.beginPath();
-      ctx.moveTo(0, gameState.ground);
-      ctx.lineTo(canvas.width, gameState.ground);
+      ctx.strokeStyle = "#535353";
+      ctx.lineWidth = 2;
+      ctx.moveTo(0, state.groundY);
+      ctx.lineTo(canvas.width, state.groundY);
       ctx.stroke();
-      ctx.shadowBlur = 0;
 
-      // Check collision
-      if (checkCollision()) {
-        setIsGameOver(true);
-        playGameOverSound();
-        
-        if (gameState.score > highScore) {
-          setHighScore(gameState.score);
-          localStorage.setItem("dinoRunnerHighScore", gameState.score.toString());
-        }
-        return; // Stop game loop on collision
-      }
+      // Draw Dino
+      ctx.fillStyle = "#00ff9d"; // Neon Green
+      ctx.fillRect(state.dino.x, state.dino.y, state.dino.width, state.dino.height);
+      // Eye
+      ctx.fillStyle = "#1a1a1a";
+      ctx.fillRect(state.dino.x + 26, state.dino.y + 4, 4, 4);
 
-      // Update score
-      gameState.score++;
-      if (gameState.score % 10 === 0) {
-        setScore(Math.floor(gameState.score / 10));
-      }
-      
-      // Increase speed every 8 seconds (480 frames at 60fps)
-      gameState.speedIncreaseTimer++;
-      if (gameState.speedIncreaseTimer >= 480) {
-        gameState.speed += 0.5;
-        gameState.speedIncreaseTimer = 0;
-      }
-
-      gameState.animationId = requestAnimationFrame(gameLoop);
+      // Draw Obstacles
+      ctx.fillStyle = "#ff0055"; // Neon Red
+      state.obstacles.forEach(obs => {
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+      });
     };
 
-    gameState.animationId = requestAnimationFrame(gameLoop);
+    const loop = (time: number) => {
+      if (lastTimeRef.current === 0) lastTimeRef.current = time;
+      const delta = time - lastTimeRef.current;
+      lastTimeRef.current = time;
+
+      // Cap delta time to prevent huge jumps if tab is inactive
+      const cappedDelta = Math.min(delta, 50);
+
+      update(cappedDelta);
+      draw();
+      requestRef.current = requestAnimationFrame(loop);
+    };
+
+    requestRef.current = requestAnimationFrame(loop);
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    };
+  }, [isStarted, isGameOver]);
+
+  // Controls
+  useEffect(() => {
+    const jump = () => {
+      const state = gameStateRef.current;
+      if (!isStarted) {
+        setIsStarted(true);
+        return;
+      }
+      if (isGameOver) {
+        restartGame();
+        return;
+      }
+      if (!state.dino.isJumping) {
+        state.dino.isJumping = true;
+        state.dino.velocity = JUMP_VELOCITY;
+        playJumpSound();
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Space" || e.code === "ArrowUp") {
+        e.preventDefault();
+        jump();
+      }
+    };
+
+    const handleTouch = (e: TouchEvent) => {
+      // Prevent default to stop scrolling/zooming, but allow button clicks if they bubble?
+      // Actually, we should only prevent default if it's on the canvas or game area.
+      // But here we attach to window.
+      // Let's attach to window but check target? 
+      // No, simpler: just jump.
+      if ((e.target as HTMLElement).tagName !== 'BUTTON') {
+        e.preventDefault();
+        jump();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    // Use passive: false to allow preventDefault
+    window.addEventListener("touchstart", handleTouch, { passive: false });
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      canvas.removeEventListener("touchstart", handleTouch);
-      window.removeEventListener("resize", resizeCanvas);
-      if (gameState.animationId) {
-        cancelAnimationFrame(gameState.animationId);
-      }
+      window.removeEventListener("touchstart", handleTouch);
     };
-  }, [isStarted, isGameOver, highScore]);
+  }, [isStarted, isGameOver]);
 
-  const handleStart = () => {
-    setIsStarted(true);
-    setIsGameOver(false);
+  const handleGameOver = () => {
+    setIsGameOver(true);
+    playGameOverSound();
+    const state = gameStateRef.current;
+    if (state.score > highScore) {
+      setHighScore(state.score);
+      localStorage.setItem("dinoRunnerHighScoreV2", state.score.toString());
+    }
   };
 
-  const handleRestart = () => {
-    gameStateRef.current.obstacles = [];
-    gameStateRef.current.particles = [];
-    gameStateRef.current.trail = [];
-    gameStateRef.current.score = 0;
-    gameStateRef.current.speed = 6;
-    gameStateRef.current.obstacleTimer = 0;
-    gameStateRef.current.obstacleSpawnTime = 80 + Math.random() * 40;
-    gameStateRef.current.speedIncreaseTimer = 0;
-    gameStateRef.current.frameCount = 0;
-    gameStateRef.current.dino.y = gameStateRef.current.ground - gameStateRef.current.dino.height;
-    gameStateRef.current.dino.velocityY = 0;
-    gameStateRef.current.dino.isJumping = false;
+  const restartGame = () => {
+    const state = gameStateRef.current;
+    state.obstacles = [];
+    state.score = 0;
+    state.distance = 0;
+    state.speed = INITIAL_SPEED;
+    state.dino.y = state.groundY - state.dino.height;
+    state.dino.velocity = 0;
+    state.dino.isJumping = false;
+
     setScore(0);
     setIsGameOver(false);
     setIsStarted(true);
+    lastTimeRef.current = 0;
   };
 
   const handleClose = () => {
-    if (gameStateRef.current.animationId) {
-      cancelAnimationFrame(gameStateRef.current.animationId);
-    }
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
     setIsStarted(false);
     setIsGameOver(false);
-    setScore(0);
     onClose();
   };
 
@@ -488,76 +394,74 @@ const FooterGame = ({ onClose }: FooterGameProps) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
         onClick={handleClose}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-background/95 border-2 border-primary/30 rounded-lg p-6 max-w-3xl w-full relative"
+          className="bg-[#0a0a0a] border-2 border-[#00ff9d]/30 rounded-lg p-4 md:p-6 max-w-4xl w-full relative shadow-[0_0_30px_rgba(0,255,157,0.1)]"
           onClick={(e) => e.stopPropagation()}
         >
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 text-foreground/60 hover:text-foreground transition-colors"
+            className="absolute top-2 right-2 md:top-4 md:right-4 text-white/60 hover:text-white transition-colors p-2"
           >
             <X className="w-6 h-6" />
           </button>
 
-          <div className="text-center mb-6">
-            <h2 className="text-3xl font-bold text-gradient mb-2" style={{ fontFamily: "Orbitron" }}>
+          <div className="text-center mb-4 md:mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 tracking-wider" style={{ fontFamily: "monospace" }}>
               DINO RUNNER
             </h2>
-            <div className="flex justify-center gap-8 text-lg">
-              <div>
-                <span className="text-muted-foreground">Score: </span>
-                <span className="text-primary font-bold">{score}</span>
+            <div className="flex justify-center gap-4 md:gap-8 text-sm md:text-lg font-mono">
+              <div className="bg-white/5 px-3 py-1 rounded">
+                <span className="text-white/60">SCORE </span>
+                <span className="text-[#00ff9d] font-bold">{score.toString().padStart(5, '0')}</span>
               </div>
-              <div>
-                <span className="text-muted-foreground">High: </span>
-                <span className="text-secondary font-bold">{highScore}</span>
+              <div className="bg-white/5 px-3 py-1 rounded">
+                <span className="text-white/60">HI </span>
+                <span className="text-[#00ff9d] font-bold">{highScore.toString().padStart(5, '0')}</span>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-center mb-4">
+          <div className="relative mb-4 bg-[#1a1a1a] rounded-lg overflow-hidden border border-white/10 w-full">
             <canvas
               ref={canvasRef}
-              className="border-2 border-primary/20 rounded-lg cursor-default"
-              style={{ maxWidth: "100%", cursor: "default" }}
+              className="w-full block cursor-pointer touch-none"
+              style={{ maxHeight: '40vh' }}
             />
+
+            {!isStarted && !isGameOver && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
+                <p className="text-[#00ff9d] font-mono text-lg md:text-xl mb-2 animate-pulse text-center px-4">
+                  PRESS SPACE OR TAP TO START
+                </p>
+              </div>
+            )}
+
+            {isGameOver && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
+                <p className="text-[#ff0055] font-mono text-xl md:text-2xl mb-2 font-bold">GAME OVER</p>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    restartGame();
+                  }}
+                  className="bg-[#00ff9d] text-black hover:bg-[#00ff9d]/90 font-mono z-10 relative"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  TRY AGAIN
+                </Button>
+              </div>
+            )}
           </div>
 
-          {!isStarted && !isGameOver && (
-            <div className="text-center">
-              <Button onClick={handleStart} className="gap-2" size="lg">
-                <Play className="w-4 h-4" />
-                Start Game
-              </Button>
-              <div className="mt-4 text-sm text-muted-foreground">
-                <p className="mb-2">Desktop: Space/↑ to jump</p>
-                <p>Mobile: Tap to jump</p>
-              </div>
-            </div>
-          )}
-
-          {isGameOver && (
-            <div className="text-center">
-              <h3 className="text-2xl font-bold text-destructive mb-2">GAME OVER</h3>
-              <p className="text-muted-foreground mb-4">Tap Space or Screen to Restart</p>
-              <Button onClick={handleRestart} className="gap-2" size="lg">
-                <Play className="w-4 h-4" />
-                Restart
-              </Button>
-            </div>
-          )}
-
-          {isStarted && !isGameOver && (
-            <div className="text-center text-xs text-muted-foreground">
-              Game is running - avoid obstacles!
-            </div>
-          )}
+          <div className="text-center text-xs text-white/30 font-mono">
+            [SPACE] / [UP] or TAP to Jump
+          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>

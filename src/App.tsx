@@ -89,11 +89,11 @@ const App = () => {
           <EasterEggsProvider>
             <SiteControlsProvider>
               <BrandingProvider>
-                <EasterEggEngine />
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
                   <BrowserRouter>
+                    <EasterEggEngine />
                     <ScrollToHashElement />
                     <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
                       <Routes>
@@ -126,10 +126,10 @@ const App = () => {
                 </TooltipProvider>
               </BrandingProvider>
             </SiteControlsProvider>
-          </EasterEggsProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+          </EasterEggsProvider >
+        </AuthProvider >
+      </QueryClientProvider >
+    </ErrorBoundary >
   );
 };
 

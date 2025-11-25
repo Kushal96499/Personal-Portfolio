@@ -89,16 +89,15 @@ const ParticleBackground = () => {
           particle.y = Math.max(0, Math.min(canvas.height, particle.y));
         }
 
-        // Draw particle
+        // Draw particle (optimized - no shadowBlur)
         ctx.font = `${particle.size}px monospace`;
+        // Use HSLA for better performance than rgba string concatenation if possible, but sticking to existing style for consistency
         ctx.fillStyle = `rgba(0, 230, 255, ${particle.opacity})`;
         ctx.fillText(particle.char, particle.x, particle.y);
 
-        // Add glow effect
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "rgba(0, 230, 255, 0.5)";
-        ctx.fillText(particle.char, particle.x, particle.y);
-        ctx.shadowBlur = 0;
+        // Optional: Draw a simple rect behind for "glow" feel without expensive blur if needed, 
+        // but for pure performance, just the text is best.
+        // If "glow" is essential, use a pre-rendered canvas or sprite, but for now we strip it for speed.
       });
 
       requestAnimationFrame(animate);
