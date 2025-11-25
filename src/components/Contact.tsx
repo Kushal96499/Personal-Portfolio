@@ -20,6 +20,25 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Rate limiting check (60 seconds between submissions)
+    const lastSubmitTime = localStorage.getItem('lastContactSubmit');
+    const now = Date.now();
+    const cooldownPeriod = 60 * 1000; // 60 seconds
+
+    if (lastSubmitTime) {
+      const timeSinceLastSubmit = now - parseInt(lastSubmitTime);
+      if (timeSinceLastSubmit < cooldownPeriod) {
+        const remainingSeconds = Math.ceil((cooldownPeriod - timeSinceLastSubmit) / 1000);
+        toast.error(`Please wait ${remainingSeconds} seconds before sending another message`, {
+          className: "border-yellow-500/50 bg-yellow-500/10 text-yellow-500",
+          style: {
+            boxShadow: "0 0 20px rgba(234, 179, 8, 0.3)",
+          },
+        });
+        return;
+      }
+    }
+
     // Anti-spam check (Honeypot)
     if (formData.honeypot) {
       console.log("Bot detected");
@@ -71,7 +90,10 @@ const Contact = () => {
         // Continue even if email fails - message is still saved
       }
 
-      // 3. Show Success UI
+      // 3. Store submission timestamp for rate limiting
+      localStorage.setItem('lastContactSubmit', now.toString());
+
+      // 4. Show Success UI
       setIsSuccess(true);
       toast.success("Message sent successfully!", {
         description: "Thanks for reaching out! I'll get back to you soon.",
@@ -81,7 +103,7 @@ const Contact = () => {
         },
       });
 
-      // 4. Reset form fields
+      // 5. Reset form fields
       setFormData({ name: "", email: "", message: "", honeypot: "" });
 
       // Reset success message after 5 seconds
