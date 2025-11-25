@@ -228,6 +228,9 @@ const EasterEggEngine = () => {
             const char = e.key.toLowerCase();
             if (char.length !== 1) return;
 
+            // RESTRICTION: Only allow keywords on /easter-eggs page
+            if (location.pathname !== '/easter-eggs') return;
+
             setKeyBuffer(prev => {
                 const newBuffer = (prev + char).slice(-20);
 
@@ -251,6 +254,9 @@ const EasterEggEngine = () => {
     // 2. UI Interaction (data-ee) - GLOBAL
     useEffect(() => {
         const handleUIInteraction = (e: MouseEvent) => {
+            // RESTRICTION: Only allow UI interactions on /easter-eggs page
+            if (location.pathname !== '/easter-eggs') return;
+
             const target = e.target as HTMLElement;
             const triggerElement = target.closest("[data-ee]");
 
@@ -272,6 +278,9 @@ const EasterEggEngine = () => {
     // 3. Scroll to Bottom - GLOBAL
     useEffect(() => {
         const handleScroll = () => {
+            // RESTRICTION: Only allow scroll trigger on /easter-eggs page
+            if (location.pathname !== '/easter-eggs') return;
+
             const scrolledToBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50;
 
             if (scrolledToBottom) {
@@ -292,6 +301,9 @@ const EasterEggEngine = () => {
         const hoveredElements = new Set<string>();
 
         const handleMouseEnter = (e: Event) => {
+            // RESTRICTION: Only allow hover trigger on /easter-eggs page
+            if (location.pathname !== '/easter-eggs') return;
+
             const target = e.target as HTMLElement;
             const hoverElement = target.closest("[data-ee-hover]");
 
@@ -334,6 +346,9 @@ const EasterEggEngine = () => {
     // 5. Click Navigation Icon (data-ee) - GLOBAL
     useEffect(() => {
         const handleNavClick = (e: MouseEvent) => {
+            // RESTRICTION: Only allow nav click trigger on /easter-eggs page
+            if (location.pathname !== '/easter-eggs') return;
+
             const target = e.target as HTMLElement;
             const navElement = target.closest("[data-ee]");
 

@@ -27,7 +27,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (now - lastSignIn > SESSION_TIMEOUT) {
             await signOut();
-            toast.error('Session expired. Please login again.');
+            // Only show toast if user is on an admin page
+            if (window.location.pathname.startsWith('/admin')) {
+                toast.error('Session expired. Please login again.');
+            }
         }
     };
 
