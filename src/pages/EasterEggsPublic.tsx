@@ -150,63 +150,55 @@ const EasterEggsPublic = () => {
                                                 </div>
                                             </div>
 
-                                            {!isFound && (
-                                                <div className="pt-2">
-                                                    {isHintVisible ? (
-                                                        <>
-                                                            <motion.div
-                                                                initial={{ opacity: 0, height: 0 }}
-                                                                animate={{ opacity: 1, height: 'auto' }}
-                                                                className="bg-primary/5 p-3 rounded-md border border-primary/10 mb-2"
-                                                            >
-                                                                <p className="text-xs text-primary/80 italic">
-                                                                    💡 Hint: {egg.hint}
-                                                                </p>
-                                                            </motion.div>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="w-full text-muted-foreground hover:text-primary"
-                                                                onClick={() => toggleHint(egg.id)}
-                                                            >
+                                            {/* Hint Section */}
+                                            <div className="pt-2">
+                                                {(isFound || isHintVisible) ? (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, height: 0 }}
+                                                        animate={{ opacity: 1, height: 'auto' }}
+                                                        className={`p-3 rounded-md border mb-2 ${isFound ? 'bg-green-500/10 border-green-500/20' : 'bg-primary/5 border-primary/10'}`}
+                                                    >
+                                                        <p className={`text-xs italic ${isFound ? 'text-green-500' : 'text-primary/80'}`}>
+                                                            {isFound ? '🎉 Secret Revealed: ' : '💡 Hint: '}
+                                                            {egg.hint}
+                                                        </p>
+                                                    </motion.div>
+                                                ) : null}
+
+                                                {!isFound && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="w-full text-muted-foreground hover:text-primary"
+                                                        onClick={() => toggleHint(egg.id)}
+                                                    >
+                                                        {isHintVisible ? (
+                                                            <>
                                                                 <EyeOff className="w-4 h-4 mr-2" />
                                                                 Hide Hint
-                                                            </Button>
-                                                        </>
-                                                    ) : (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="w-full text-muted-foreground hover:text-primary"
-                                                            onClick={() => toggleHint(egg.id)}
-                                                        >
-                                                            <Eye className="w-4 h-4 mr-2" />
-                                                            Show Hint
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                            )}
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Eye className="w-4 h-4 mr-2" />
+                                                                Show Hint
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                )}
+                                            </div>
 
                                             {isFound && (
                                                 <motion.div
                                                     initial={{ opacity: 0, scale: 0.9 }}
                                                     animate={{ opacity: 1, scale: 1 }}
-                                                    className="pt-2 space-y-2"
+                                                    className="pt-2"
                                                 >
-                                                    <div className="bg-green-500/10 p-3 rounded-md border border-green-500/20">
-                                                        <p className="text-xs text-green-500 font-mono text-center">
-                                                            STATUS: UNLOCKED ✓
-                                                        </p>
+                                                    <div className="bg-green-500/10 p-2 rounded-md border border-green-500/20 text-center">
+                                                        <span className="text-xs text-green-500 font-mono flex items-center justify-center gap-2">
+                                                            <Unlock className="w-3 h-3" />
+                                                            UNLOCKED
+                                                        </span>
                                                     </div>
-                                                    <Button
-                                                        className="w-full bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50"
-                                                        onClick={() => {
-                                                            // Dispatch custom event to trigger egg
-                                                            window.dispatchEvent(new CustomEvent('trigger_egg', { detail: egg }));
-                                                        }}
-                                                    >
-                                                        Run Effect
-                                                    </Button>
                                                 </motion.div>
                                             )}
                                         </CardContent>
