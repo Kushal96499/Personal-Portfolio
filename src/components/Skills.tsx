@@ -61,7 +61,7 @@ const Skills = () => {
             My <span className="text-gradient">Skills</span>
           </h2>
           <p className="text-muted-foreground">
-            Expertise across cybersecurity, development, and automation
+            Expertise in Network Security, Ethical Hacking, and Incident Response
           </p>
         </motion.div>
 

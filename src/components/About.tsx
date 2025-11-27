@@ -57,7 +57,7 @@ const About = () => {
               )}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto whitespace-pre-line">
-            {aboutMe?.description || "Passionate cybersecurity student with hands-on experience in web development, Python automation, and security tools."}
+            {aboutMe?.description || "Passionate cybersecurity enthusiast with hands-on experience in network security, ethical hacking, and incident response."}
           </p>
         </motion.div>
 

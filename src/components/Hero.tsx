@@ -9,7 +9,6 @@ const Hero = () => {
   const roles = [
     "Cybersecurity Student",
     "Developer",
-    "Web Developer",
     "Python Automation Expert",
   ];
   const [roleIndex, setRoleIndex] = useState(0);
