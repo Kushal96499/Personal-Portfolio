@@ -10,8 +10,9 @@ const AboutSettings = () => {
     const [aboutMe, setAboutMe] = useState<AboutMe | null>(null);
     const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
 
-    // Form states for new timeline item
+    // Form states for new/edit timeline item
     const [isAddingItem, setIsAddingItem] = useState(false);
+    const [editingItemId, setEditingItemId] = useState<string | null>(null);
     const [newItem, setNewItem] = useState<TimelineItemInsert>({
         title: '',
         period: '',
@@ -59,29 +60,43 @@ const AboutSettings = () => {
         }
     };
 
-    const handleAddItem = async () => {
+    const handleSaveItem = async () => {
         try {
             setSaving(true);
-            await api.createTimelineItem({
-                ...newItem,
-                order: timelineItems.length + 1
-            });
+
+            if (editingItemId) {
+                await api.updateTimelineItem(editingItemId, newItem);
+                toast.success('Timeline item updated');
+            } else {
+                await api.createTimelineItem({
+                    ...newItem,
+                    order: timelineItems.length + 1
+                });
+                toast.success('Timeline item added');
+            }
+
             await fetchData();
-            setIsAddingItem(false);
-            setNewItem({
-                title: '',
-                period: '',
-                description: '',
-                icon_type: 'briefcase',
-                order: 0
-            });
-            toast.success('Timeline item added');
+            resetForm();
         } catch (error) {
-            console.error('Error adding item:', error);
-            toast.error('Failed to add item');
+            console.error('Error saving item:', error);
+            toast.error('Failed to save item');
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleEditItem = (item: TimelineItem) => {
+        setNewItem({
+            title: item.title,
+            period: item.period,
+            description: item.description,
+            icon_type: item.icon_type,
+            order: item.order
+        });
+        setEditingItemId(item.id);
+        setIsAddingItem(true);
+        // Scroll to form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleDeleteItem = async (id: string) => {
@@ -95,6 +110,18 @@ const AboutSettings = () => {
             console.error('Error deleting item:', error);
             toast.error('Failed to delete item');
         }
+    };
+
+    const resetForm = () => {
+        setIsAddingItem(false);
+        setEditingItemId(null);
+        setNewItem({
+            title: '',
+            period: '',
+            description: '',
+            icon_type: 'briefcase',
+            order: 0
+        });
     };
 
     if (loading) {
@@ -171,22 +198,30 @@ const AboutSettings = () => {
                         <div className="w-1 h-6 bg-purple-500 rounded-full" />
                         Timeline Items
                     </h2>
-                    <button
-                        onClick={() => setIsAddingItem(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-secondary/50 hover:bg-secondary text-secondary-foreground rounded-lg transition-colors text-sm"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Add Item
-                    </button>
+                    {!isAddingItem && (
+                        <button
+                            onClick={() => setIsAddingItem(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-secondary/50 hover:bg-secondary text-secondary-foreground rounded-lg transition-colors text-sm"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add Item
+                        </button>
+                    )}
                 </div>
 
-                {/* Add New Item Form */}
+                {/* Add/Edit Item Form */}
                 {isAddingItem && (
                     <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         className="bg-background/50 border border-border rounded-lg p-4 space-y-4"
                     >
+                        <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-sm font-medium text-muted-foreground">
+                                {editingItemId ? 'Edit Timeline Item' : 'Add New Timeline Item'}
+                            </h3>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-xs font-medium text-muted-foreground">Title</label>
@@ -227,8 +262,8 @@ const AboutSettings = () => {
                                 <button
                                     onClick={() => setNewItem({ ...newItem, icon_type: 'briefcase' })}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-md border text-sm transition-colors ${newItem.icon_type === 'briefcase'
-                                            ? 'bg-primary/20 border-primary text-primary'
-                                            : 'bg-background border-border hover:bg-secondary/50'
+                                        ? 'bg-primary/20 border-primary text-primary'
+                                        : 'bg-background border-border hover:bg-secondary/50'
                                         }`}
                                 >
                                     <Briefcase className="w-4 h-4" />
@@ -237,8 +272,8 @@ const AboutSettings = () => {
                                 <button
                                     onClick={() => setNewItem({ ...newItem, icon_type: 'graduation-cap' })}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-md border text-sm transition-colors ${newItem.icon_type === 'graduation-cap'
-                                            ? 'bg-primary/20 border-primary text-primary'
-                                            : 'bg-background border-border hover:bg-secondary/50'
+                                        ? 'bg-primary/20 border-primary text-primary'
+                                        : 'bg-background border-border hover:bg-secondary/50'
                                         }`}
                                 >
                                     <GraduationCap className="w-4 h-4" />
@@ -249,17 +284,17 @@ const AboutSettings = () => {
 
                         <div className="flex justify-end gap-2 pt-2">
                             <button
-                                onClick={() => setIsAddingItem(false)}
+                                onClick={resetForm}
                                 className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
-                                onClick={handleAddItem}
+                                onClick={handleSaveItem}
                                 disabled={!newItem.title || !newItem.period}
                                 className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
                             >
-                                Add Item
+                                {editingItemId ? 'Update Item' : 'Add Item'}
                             </button>
                         </div>
                     </motion.div>
@@ -286,12 +321,22 @@ const AboutSettings = () => {
                                 <p className="text-sm text-muted-foreground truncate">{item.description}</p>
                             </div>
 
-                            <button
-                                onClick={() => handleDeleteItem(item.id)}
-                                className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors opacity-0 group-hover:opacity-100"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
+                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    onClick={() => handleEditItem(item)}
+                                    className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                                    title="Edit Item"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteItem(item.id)}
+                                    className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                                    title="Delete Item"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
                         </div>
                     ))}
 
