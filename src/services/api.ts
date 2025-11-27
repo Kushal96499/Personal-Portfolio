@@ -116,6 +116,7 @@ export interface EasterSettingsUpdate {
 export interface SiteControls {
     id?: string;
     home_hero: boolean;
+    about: boolean;
     skills: boolean;
     projects: boolean;
     testimonials: boolean;
@@ -126,6 +127,42 @@ export interface SiteControls {
     threat_map_enabled: boolean;
     created_at?: string;
     updated_at?: string;
+}
+
+// About Section Interfaces
+export interface AboutMe {
+    id: string;
+    title: string;
+    description: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface TimelineItem {
+    id: string;
+    title: string;
+    period: string;
+    description: string;
+    icon_type: 'briefcase' | 'graduation-cap';
+    order: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface TimelineItemInsert {
+    title: string;
+    period: string;
+    description: string;
+    icon_type: 'briefcase' | 'graduation-cap';
+    order?: number;
+}
+
+export interface TimelineItemUpdate {
+    title?: string;
+    period?: string;
+    description?: string;
+    icon_type?: 'briefcase' | 'graduation-cap';
+    order?: number;
 }
 
 // Branding Settings Interface (Logo & Branding)
@@ -763,6 +800,95 @@ export const api = {
         };
     },
 
+    // ==================== ABOUT SECTION ====================
+    getAboutMe: async (): Promise<AboutMe> => {
+        const { data, error } = await supabase
+            .from('about_me')
+            .select('*')
+            .single();
+
+        if (error) {
+            // If empty, return default structure (or handle error)
+            if (error.code === 'PGRST116') {
+                return {
+                    id: 'default',
+                    title: 'About Me',
+                    description: '',
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+            }
+            throw error;
+        }
+        return data as AboutMe;
+    },
+
+    updateAboutMe: async (data: { title: string; description: string }): Promise<AboutMe> => {
+        // Check if exists
+        const { data: existing } = await supabase.from('about_me').select('id').single();
+
+        if (existing) {
+            const { data: updated, error } = await supabase
+                .from('about_me')
+                .update(data)
+                .eq('id', existing.id)
+                .select()
+                .single();
+            if (error) throw error;
+            return updated as AboutMe;
+        } else {
+            const { data: created, error } = await supabase
+                .from('about_me')
+                .insert([data])
+                .select()
+                .single();
+            if (error) throw error;
+            return created as AboutMe;
+        }
+    },
+
+    getTimelineItems: async (): Promise<TimelineItem[]> => {
+        const { data, error } = await supabase
+            .from('timeline_items')
+            .select('*')
+            .order('order', { ascending: true });
+
+        if (error) throw error;
+        return data as TimelineItem[];
+    },
+
+    createTimelineItem: async (item: TimelineItemInsert): Promise<TimelineItem> => {
+        const { data, error } = await supabase
+            .from('timeline_items')
+            .insert([item])
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data as TimelineItem;
+    },
+
+    updateTimelineItem: async (id: string, updates: TimelineItemUpdate): Promise<TimelineItem> => {
+        const { data, error } = await supabase
+            .from('timeline_items')
+            .update(updates)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data as TimelineItem;
+    },
+
+    deleteTimelineItem: async (id: string): Promise<void> => {
+        const { error } = await supabase
+            .from('timeline_items')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+    },
+
     // ==================== ACTIVITY LOGS ====================
     getRecentActivities: async (limit: number = 10): Promise<Activity[]> => {
         const { data, error } = await supabase
@@ -809,7 +935,9 @@ export const api = {
             // If no config found, return default
             if (error.code === 'PGRST116') {
                 return {
+                    id: 'default',
                     home_hero: true,
+                    about: true,
                     skills: true,
                     projects: true,
                     testimonials: true,

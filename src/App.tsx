@@ -24,6 +24,7 @@ const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 const SectionControls = lazy(() => import("./pages/admin/SectionControls"));
 const BrandingSettings = lazy(() => import("./pages/admin/BrandingSettings"));
 const ResumeSettings = lazy(() => import("./pages/admin/ResumeSettings"));
+const AboutSettings = lazy(() => import("./pages/admin/AboutSettings"));
 const EasterEggsPublic = lazy(() => import("./pages/EasterEggsPublic"));
 import { AuthProvider } from "./contexts/AuthContext";
 import { SiteControlsProvider } from "@/contexts/SiteControlsContext";
@@ -112,6 +113,7 @@ const App = () => {
                           <Route path="blogs" element={<Blogs />} />
                           <Route path="skills" element={<Skills />} />
                           <Route path="resume" element={<ResumeSettings />} />
+                          <Route path="about" element={<AboutSettings />} />
                           <Route path="easter-eggs" element={<EasterEggs />} />
                           <Route path="logs" element={<Logs />} />
                           <Route path="section-controls" element={<SectionControls />} />

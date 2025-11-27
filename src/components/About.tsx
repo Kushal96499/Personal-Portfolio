@@ -1,27 +1,39 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Briefcase, GraduationCap } from "lucide-react";
+import { Briefcase, GraduationCap, Loader2 } from "lucide-react";
+import { api, AboutMe, TimelineItem } from "@/services/api";
 
 const About = () => {
-  const timeline = [
-    {
-      icon: <Briefcase className="text-primary" />,
-      title: "Intern at CodTech",
-      period: "Current",
-      description: "Working on cybersecurity projects and web development",
-    },
-    {
-      icon: <Briefcase className="text-secondary" />,
-      title: "Intern at Inlighn Tech",
-      period: "Current",
-      description: "Developing automated solutions and security tools",
-    },
-    {
-      icon: <GraduationCap className="text-accent" />,
-      title: "BCA Student",
-      period: "Biyani College",
-      description: "Pursuing Bachelor of Computer Applications",
-    },
-  ];
+  const [aboutMe, setAboutMe] = useState<AboutMe | null>(null);
+  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [aboutData, timelineData] = await Promise.all([
+          api.getAboutMe(),
+          api.getTimelineItems()
+        ]);
+        setAboutMe(aboutData);
+        setTimelineItems(timelineData);
+      } catch (error) {
+        console.error("Failed to fetch about data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <section id="about" className="py-20 relative min-h-[600px] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </section>
+    );
+  }
 
   return (
     <section id="about" className="py-20 relative">
@@ -34,19 +46,25 @@ const About = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            About <span className="text-gradient">Me</span>
+            {aboutMe?.title?.split(' ').map((word, i, arr) => (
+              <span key={i} className={i === arr.length - 1 ? "text-gradient" : ""}>
+                {word}{" "}
+              </span>
+            )) || (
+                <>
+                  About <span className="text-gradient">Me</span>
+                </>
+              )}
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Passionate cybersecurity student with hands-on experience in web development,
-            Python automation, and security tools. Currently interning at leading tech companies
-            while pursuing my degree.
+          <p className="text-muted-foreground max-w-2xl mx-auto whitespace-pre-line">
+            {aboutMe?.description || "Passionate cybersecurity student with hands-on experience in web development, Python automation, and security tools."}
           </p>
         </motion.div>
 
         <div className="max-w-3xl mx-auto">
-          {timeline.map((item, index) => (
+          {timelineItems.map((item, index) => (
             <motion.div
-              key={index}
+              key={item.id}
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: index * 0.2 }}
@@ -54,7 +72,11 @@ const About = () => {
               className="flex flex-col sm:flex-row gap-6 mb-8 relative"
             >
               <div className="glass p-4 rounded-lg flex-shrink-0 glow-cyan w-16 h-16 flex items-center justify-center mx-auto sm:mx-0">
-                {item.icon}
+                {item.icon_type === 'graduation-cap' ? (
+                  <GraduationCap className="text-accent" />
+                ) : (
+                  <Briefcase className="text-primary" />
+                )}
               </div>
               <div className="glass p-6 rounded-lg flex-1 text-center sm:text-left">
                 <h3 className="text-xl font-bold mb-2">{item.title}</h3>
@@ -63,6 +85,12 @@ const About = () => {
               </div>
             </motion.div>
           ))}
+
+          {timelineItems.length === 0 && (
+            <div className="text-center text-muted-foreground">
+              No timeline items found.
+            </div>
+          )}
         </div>
       </div>
     </section>

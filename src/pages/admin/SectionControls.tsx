@@ -15,6 +15,7 @@ interface SectionConfig {
 
 const sections: SectionConfig[] = [
     { key: 'home_hero', label: 'Home Hero', description: 'Main landing section with introduction' },
+    { key: 'about', label: 'About Section', description: 'About me and timeline' },
     { key: 'skills', label: 'Skills', description: 'Technical skills and expertise' },
     { key: 'projects', label: 'Projects', description: 'Portfolio projects showcase' },
     { key: 'testimonials', label: 'Testimonials', description: 'Client reviews and feedback' },

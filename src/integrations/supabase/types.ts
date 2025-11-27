@@ -9,6 +9,63 @@ export type Json =
 export type Database = {
     public: {
         Tables: {
+            about_me: {
+                Row: {
+                    id: string
+                    title: string
+                    description: string
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    title?: string
+                    description?: string
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    title?: string
+                    description?: string
+                    created_at?: string
+                    updated_at?: string
+                }
+                Relationships: []
+            }
+            timeline_items: {
+                Row: {
+                    id: string
+                    title: string
+                    period: string
+                    description: string
+                    icon_type: 'briefcase' | 'graduation-cap'
+                    order: number
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    title: string
+                    period: string
+                    description: string
+                    icon_type?: 'briefcase' | 'graduation-cap'
+                    order?: number
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    title?: string
+                    period?: string
+                    description?: string
+                    icon_type?: 'briefcase' | 'graduation-cap'
+                    order?: number
+                    created_at?: string
+                    updated_at?: string
+                }
+                Relationships: []
+            }
             blogs: {
                 Row: {
                     id: string
@@ -282,6 +339,7 @@ export type Database = {
                 Row: {
                     id: string
                     home_hero: boolean
+                    about: boolean
                     skills: boolean
                     projects: boolean
                     testimonials: boolean
@@ -296,6 +354,7 @@ export type Database = {
                 Insert: {
                     id?: string
                     home_hero?: boolean
+                    about?: boolean
                     skills?: boolean
                     projects?: boolean
                     testimonials?: boolean
@@ -310,6 +369,7 @@ export type Database = {
                 Update: {
                     id?: string
                     home_hero?: boolean
+                    about?: boolean
                     skills?: boolean
                     projects?: boolean
                     testimonials?: boolean

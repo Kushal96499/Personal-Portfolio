@@ -406,9 +406,10 @@ const FooterGame = ({ onClose }: FooterGameProps) => {
         >
           <button
             onClick={handleClose}
-            className="absolute top-2 right-2 md:top-4 md:right-4 text-white/60 hover:text-white transition-colors p-2"
+            className="absolute -top-10 right-0 md:top-4 md:right-4 text-white hover:text-white/80 transition-colors p-2 bg-black/50 rounded-full md:bg-transparent md:rounded-none border border-white/20 md:border-none z-50"
+            aria-label="Close Game"
           >
-            <X className="w-6 h-6" />
+            <X className="w-8 h-8 md:w-6 md:h-6" />
           </button>
 
           <div className="text-center mb-4 md:mb-6">

@@ -62,4 +62,10 @@
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
+  
+  <url>
+    <loc>https://kushalkumawat.in/favicon.ico</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.1</priority>
+  </url>
 </urlset>
