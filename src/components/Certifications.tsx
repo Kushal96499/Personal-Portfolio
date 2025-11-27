@@ -86,7 +86,7 @@ const Certifications = () => {
                   <img
                     src={cert.image_url}
                     alt={cert.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 ) : (
                   <Award className="w-12 h-12 text-primary" />

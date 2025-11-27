@@ -33,6 +33,7 @@ interface Obstacle {
 
 const FooterGame = ({ onClose }: FooterGameProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const gameContainerRef = useRef<HTMLDivElement>(null);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -335,24 +336,22 @@ const FooterGame = ({ onClose }: FooterGameProps) => {
     };
 
     const handleTouch = (e: TouchEvent) => {
-      // Prevent default to stop scrolling/zooming, but allow button clicks if they bubble?
-      // Actually, we should only prevent default if it's on the canvas or game area.
-      // But here we attach to window.
-      // Let's attach to window but check target? 
-      // No, simpler: just jump.
-      if ((e.target as HTMLElement).tagName !== 'BUTTON') {
-        e.preventDefault();
-        jump();
-      }
+      e.preventDefault();
+      jump();
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    // Use passive: false to allow preventDefault
-    window.addEventListener("touchstart", handleTouch, { passive: false });
+
+    const gameContainer = gameContainerRef.current;
+    if (gameContainer) {
+      gameContainer.addEventListener("touchstart", handleTouch, { passive: false });
+    }
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("touchstart", handleTouch);
+      if (gameContainer) {
+        gameContainer.removeEventListener("touchstart", handleTouch);
+      }
     };
   }, [isStarted, isGameOver]);
 
@@ -406,10 +405,10 @@ const FooterGame = ({ onClose }: FooterGameProps) => {
         >
           <button
             onClick={handleClose}
-            className="absolute -top-10 right-0 md:top-4 md:right-4 text-white hover:text-white/80 transition-colors p-2 bg-black/50 rounded-full md:bg-transparent md:rounded-none border border-white/20 md:border-none z-50"
+            className="absolute top-2 right-2 md:top-4 md:right-4 text-white hover:text-white/80 transition-colors p-2 z-50"
             aria-label="Close Game"
           >
-            <X className="w-8 h-8 md:w-6 md:h-6" />
+            <X className="w-6 h-6" />
           </button>
 
           <div className="text-center mb-4 md:mb-6">
@@ -428,10 +427,13 @@ const FooterGame = ({ onClose }: FooterGameProps) => {
             </div>
           </div>
 
-          <div className="relative mb-4 bg-[#1a1a1a] rounded-lg overflow-hidden border border-white/10 w-full">
+          <div
+            ref={gameContainerRef}
+            className="relative mb-4 bg-[#1a1a1a] rounded-lg overflow-hidden border border-white/10 w-full touch-none"
+          >
             <canvas
               ref={canvasRef}
-              className="w-full block cursor-pointer touch-none"
+              className="w-full block cursor-pointer"
               style={{ maxHeight: '40vh' }}
             />
 
