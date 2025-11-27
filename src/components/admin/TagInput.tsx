@@ -15,6 +15,7 @@ export const TagInput = ({ tags, onChange, suggestions = [], placeholder = 'Add 
     const [inputValue, setInputValue] = useState('');
     const [showSuggestions, setShowSuggestions] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const defaultSuggestions = [
         'Web Security',
@@ -60,7 +61,7 @@ export const TagInput = ({ tags, onChange, suggestions = [], placeholder = 'Add 
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
                 setShowSuggestions(false);
             }
         };
@@ -70,7 +71,7 @@ export const TagInput = ({ tags, onChange, suggestions = [], placeholder = 'Add 
     }, []);
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-2" ref={containerRef}>
             <div className="flex flex-wrap gap-2 p-3 border border-border rounded-md bg-background/50 min-h-[42px]">
                 {tags.map((tag) => (
                     <Badge
