@@ -51,7 +51,7 @@ Follow these instructions to set up the project locally.
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/yourusername/personal-portfolio.git
+    git clone https://github.com/Kushal96499/personal-portfolio.git
     cd personal-portfolio
     ```
 
