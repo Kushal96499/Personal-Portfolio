@@ -14,7 +14,6 @@ import {
     Code,
     Activity,
     Settings,
-    Palette,
     FileUser,
     Info
 } from 'lucide-react';
@@ -39,17 +38,17 @@ const SidebarItem = ({
         to={to}
         onClick={onClick}
         className={cn(
-            'flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group',
+            'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 group relative',
             isActive
-                ? 'bg-primary/10 text-primary'
-                : 'text-muted-foreground hover:text-foreground hover:bg-accent/5'
+                ? 'bg-blue-600 text-white'
+                : 'text-white/60 hover:text-white hover:bg-white/5'
         )}
     >
-        <Icon className={cn('w-5 h-5', isActive && 'text-primary drop-shadow-[0_0_5px_rgba(0,255,255,0.5)]')} />
-        <span className={cn('font-medium', isActive && 'text-primary')}>{label}</span>
         {isActive && (
-            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_5px_#00ffff]" />
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-400 rounded-r" />
         )}
+        <Icon className={cn('w-5 h-5 transition-transform duration-300 group-hover:scale-110', isActive && 'text-blue-400')} />
+        <span className={cn('font-medium', isActive && 'text-blue-100')}>{label}</span>
     </Link>
 );
 
@@ -76,16 +75,18 @@ const AdminLayout = () => {
         { icon: FileUser, label: 'Resume Settings', to: '/admin/resume' },
         { icon: Gamepad2, label: 'Easter Eggs', to: '/admin/easter-eggs' },
         { icon: Settings, label: 'Section Controls', to: '/admin/section-controls' },
-        { icon: Palette, label: 'Branding Settings', to: '/admin/branding' },
         { icon: Activity, label: 'System Logs', to: '/admin/logs' },
     ];
 
     return (
-        <div className="min-h-screen bg-background flex" data-admin-panel>
+        <div className="h-screen overflow-hidden bg-[#070709] flex text-white font-sans selection:bg-blue-500/30" data-admin-panel>
+            {/* Background Effects */}
+            {/* Background Effects Removed for Performance */}
+
             {/* Mobile Overlay */}
             {isMobileMenuOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
+                    className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm"
                     onClick={() => setIsMobileMenuOpen(false)}
                 />
             )}
@@ -93,26 +94,26 @@ const AdminLayout = () => {
             {/* Sidebar */}
             <aside
                 className={cn(
-                    'fixed md:sticky top-0 left-0 z-40 h-screen w-64 bg-card border-r border-border transition-transform duration-300 ease-in-out transform md:translate-x-0 flex flex-col',
+                    'fixed md:sticky top-0 left-0 z-50 h-screen w-72 bg-[#0D0D11] border-r border-white/[0.08] transition-transform duration-300 ease-in-out transform md:translate-x-0 flex flex-col',
                     isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
                 )}
             >
-                <div className="p-6 border-b border-border flex items-center justify-between flex-shrink-0">
-                    <h1 className="text-xl font-bold font-orbitron tracking-wider text-gradient">
-                        ADMIN PANEL
+                <div className="p-6 border-b border-white/[0.08] flex items-center justify-between flex-shrink-0 bg-white/[0.02]">
+                    <h1 className="text-xl font-bold tracking-wider">
+                        <span className="text-gradient-premium">ADMIN PANEL</span>
                     </h1>
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="md:hidden"
+                        className="md:hidden text-white/60 hover:text-white"
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
                         <X className="w-5 h-5" />
                     </Button>
                 </div>
 
-                <ScrollArea className="flex-1 h-0">
-                    <div className="p-4 space-y-2">
+                <ScrollArea className="flex-1 h-0 py-4">
+                    <div className="px-4 space-y-1">
                         {menuItems.map((item) => (
                             <SidebarItem
                                 key={item.to}
@@ -126,10 +127,10 @@ const AdminLayout = () => {
                     </div>
                 </ScrollArea>
 
-                <div className="p-4 border-t border-border flex-shrink-0">
+                <div className="p-4 border-t border-white/[0.08] flex-shrink-0 bg-white/[0.02]">
                     <Button
                         variant="ghost"
-                        className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
                         onClick={handleSignOut}
                     >
                         <LogOut className="w-5 h-5 mr-2" />
@@ -139,15 +140,15 @@ const AdminLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 min-w-0 overflow-y-auto relative">
-                <div className="p-4 md:hidden flex items-center justify-between border-b border-border bg-card/50 backdrop-blur-md sticky top-0 z-20">
-                    <h1 className="font-orbitron font-bold text-primary">Admin Panel</h1>
-                    <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(true)}>
+            <main className="flex-1 h-full min-w-0 overflow-y-auto relative">
+                <div className="p-4 md:hidden flex items-center justify-between border-b border-white/[0.08] bg-[#0D0D11] sticky top-0 z-40">
+                    <h1 className="font-bold text-white">Admin Panel</h1>
+                    <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(true)} className="text-white">
                         <Menu className="w-5 h-5" />
                     </Button>
                 </div>
 
-                <div className="p-6 md:p-8 max-w-7xl mx-auto animate-fade-in">
+                <div className="p-6 md:p-10 max-w-7xl mx-auto animate-fade-in">
                     <Outlet />
                 </div>
             </main>

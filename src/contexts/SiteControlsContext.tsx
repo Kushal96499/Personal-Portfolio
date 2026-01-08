@@ -9,6 +9,7 @@ interface SiteControlsContextType {
 
 const defaultControls: SiteControls = {
     home_hero: true,
+    about: true,
     skills: true,
     projects: true,
     testimonials: true,

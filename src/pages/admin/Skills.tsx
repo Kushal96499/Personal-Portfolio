@@ -201,13 +201,13 @@ const Skills = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold font-orbitron text-gradient">Skills Manager</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Manage your technical expertise</p>
+                    <h2 className="text-3xl font-bold text-white tracking-tight">Skills Manager</h2>
+                    <p className="text-white/60 mt-1">Manage your technical expertise</p>
                 </div>
-                <Button onClick={() => handleOpenDialog()} className="bg-primary hover:bg-primary/90">
+                <Button onClick={() => handleOpenDialog()} className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 transition-all duration-300">
                     <Plus className="w-4 h-4 mr-2" />
                     Add Skill
                 </Button>
@@ -217,30 +217,30 @@ const Skills = () => {
                 {skills.map((skill) => {
                     const IconComponent = iconOptions.find(opt => opt.value === skill.icon)?.icon || Code;
                     return (
-                        <Card key={skill.id} className="bg-card/50 backdrop-blur-sm border-primary/10 group hover:border-primary/30 transition-all">
-                            <CardHeader className="relative">
+                        <Card key={skill.id} className="bg-white/[0.03] border-white/[0.08] backdrop-blur-xl group hover:bg-white/[0.05] hover:border-blue-500/30 transition-all duration-300 h-full flex flex-col">
+                            <CardHeader className="relative pb-2">
                                 <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Button size="icon" variant="ghost" onClick={() => handleOpenDialog(skill)}>
-                                        <Edit2 className="w-4 h-4 text-blue-400" />
+                                    <Button size="icon" variant="secondary" className="h-8 w-8 bg-white/10 hover:bg-white/20 text-white border border-white/10" onClick={() => handleOpenDialog(skill)}>
+                                        <Edit2 className="w-4 h-4" />
                                     </Button>
-                                    <Button size="icon" variant="ghost" onClick={() => handleDelete(skill.id)}>
-                                        <Trash2 className="w-4 h-4 text-red-400" />
+                                    <Button size="icon" variant="destructive" className="h-8 w-8 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/20" onClick={() => handleDelete(skill.id)}>
+                                        <Trash2 className="w-4 h-4" />
                                     </Button>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 group-hover:scale-110 transition-transform duration-300">
                                         <IconComponent className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <CardTitle className="text-lg">{skill.title}</CardTitle>
-                                        <p className="text-xs text-muted-foreground font-mono mt-1">{skill.category}</p>
+                                        <CardTitle className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">{skill.title}</CardTitle>
+                                        <p className="text-xs text-white/40 font-mono mt-1 uppercase tracking-wider">{skill.category}</p>
                                     </div>
                                 </div>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="pt-4">
                                 <div className="flex flex-wrap gap-2">
                                     {skill.items.map((item, idx) => (
-                                        <Badge key={idx} variant="secondary" className="bg-secondary/20">
+                                        <Badge key={idx} variant="secondary" className="bg-white/5 hover:bg-white/10 text-white/80 border-white/5 transition-colors">
                                             {item}
                                         </Badge>
                                     ))}
@@ -252,41 +252,43 @@ const Skills = () => {
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-md bg-[#0D0D11] border-white/[0.08] text-white shadow-2xl">
                     <DialogHeader>
-                        <DialogTitle>{editingSkill ? 'Edit Skill' : 'Add New Skill'}</DialogTitle>
+                        <DialogTitle className="text-xl font-bold">{editingSkill ? 'Edit Skill' : 'Add New Skill'}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label>Category</Label>
+                            <Label className="text-white/80">Category</Label>
                             <Input
                                 placeholder="e.g. Web Development"
                                 value={formData.category}
                                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                className="bg-white/5 border-white/10 text-white focus:border-blue-500/50"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label>Title</Label>
+                            <Label className="text-white/80">Title</Label>
                             <Input
                                 placeholder="e.g. Frontend Stack"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                className="bg-white/5 border-white/10 text-white focus:border-blue-500/50"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label>Icon</Label>
+                            <Label className="text-white/80">Icon</Label>
                             <Select
                                 value={formData.icon}
                                 onValueChange={(value) => setFormData({ ...formData, icon: value })}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-blue-500/50">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="bg-[#0D0D11] border-white/10 text-white">
                                     {iconOptions.map(option => (
-                                        <SelectItem key={option.value} value={option.value}>
+                                        <SelectItem key={option.value} value={option.value} className="focus:bg-white/10 focus:text-white">
                                             <div className="flex items-center gap-2">
-                                                <option.icon className="w-4 h-4" />
+                                                <option.icon className="w-4 h-4 text-blue-400" />
                                                 {option.label}
                                             </div>
                                         </SelectItem>
@@ -295,33 +297,39 @@ const Skills = () => {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label>Sort Order</Label>
+                            <Label className="text-white/80">Sort Order</Label>
                             <Input
                                 type="number"
                                 placeholder="0"
                                 value={formData.order}
                                 onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+                                className="bg-white/5 border-white/10 text-white focus:border-blue-500/50"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label>Skills List</Label>
+                            <Label className="text-white/80">Skills List</Label>
                             <div className="flex gap-2">
                                 <Input
                                     placeholder="Add a skill item..."
                                     value={formData.newItem}
                                     onChange={(e) => setFormData({ ...formData, newItem: e.target.value })}
                                     onKeyDown={(e) => e.key === 'Enter' && handleAddItem()}
+                                    className="bg-white/5 border-white/10 text-white focus:border-blue-500/50"
+                                    id="skill-input"
                                 />
-                                <Button onClick={handleAddItem} size="icon">
+                                <Button onClick={handleAddItem} size="icon" className="bg-blue-600 hover:bg-blue-700 text-white shrink-0">
                                     <Plus className="w-4 h-4" />
                                 </Button>
                             </div>
-                            <div className="flex flex-wrap gap-2 mt-2">
+                            <div className="flex flex-wrap gap-2 mt-3 p-3 bg-white/5 rounded-lg border border-white/5 min-h-[60px]">
+                                {formData.items.length === 0 && (
+                                    <span className="text-white/20 text-sm italic w-full text-center py-2">No skills added yet</span>
+                                )}
                                 {formData.items.map((item, idx) => (
-                                    <Badge key={idx} variant="outline" className="gap-1 pl-2 pr-1 py-1">
+                                    <Badge key={idx} variant="outline" className="gap-1 pl-2 pr-1 py-1 bg-blue-500/10 text-blue-300 border-blue-500/20 hover:bg-blue-500/20 transition-colors">
                                         {item}
                                         <X
-                                            className="w-3 h-3 cursor-pointer hover:text-red-500"
+                                            className="w-3 h-3 cursor-pointer hover:text-red-400 transition-colors ml-1"
                                             onClick={() => handleRemoveItem(idx)}
                                         />
                                     </Badge>
@@ -329,9 +337,9 @@ const Skills = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                        <Button onClick={handleSubmit}>
+                    <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="hover:bg-white/10 hover:text-white">Cancel</Button>
+                        <Button onClick={handleSubmit} className="bg-blue-600 hover:bg-blue-700 text-white">
                             <Save className="w-4 h-4 mr-2" />
                             Save Skill
                         </Button>

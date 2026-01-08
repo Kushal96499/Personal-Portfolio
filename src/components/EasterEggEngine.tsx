@@ -157,6 +157,10 @@ const EasterEggEngine = () => {
             case "NavigateToSection":
                 const sectionId = egg.action_params?.sectionId;
                 if (sectionId) {
+                    // Prevent loop: Don't navigate if we are already at the target section
+                    const currentHash = window.location.hash.replace('#', '');
+                    if (currentHash === sectionId) return;
+
                     if (window.location.pathname !== '/') {
                         navigate('/');
                         // Use retry mechanism for cross-page navigation
@@ -169,6 +173,8 @@ const EasterEggEngine = () => {
             case "NavigateToPage":
                 const pageUrl = egg.action_params?.pageUrl;
                 if (pageUrl) {
+                    // Prevent loop: Don't navigate if we are already on the target page
+                    if (window.location.pathname === pageUrl) return;
                     navigate(pageUrl);
                 }
                 break;
@@ -251,7 +257,7 @@ const EasterEggEngine = () => {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [eggs, location]); // Re-bind on location change
 
-    // 2. UI Interaction (data-ee) - GLOBAL
+    // 2. UI Interaction (data-ee) - RESTRICTED to /easter-eggs
     useEffect(() => {
         const handleUIInteraction = (e: MouseEvent) => {
             // RESTRICTION: Only allow UI interactions on /easter-eggs page
@@ -265,17 +271,19 @@ const EasterEggEngine = () => {
 
                 eggs.forEach(egg => {
                     if (egg.trigger_type === "ui_interaction" && egg.trigger_value === triggerValue) {
+                        e.preventDefault();
+                        e.stopPropagation();
                         executeAction(egg);
                     }
                 });
             }
         };
 
-        window.addEventListener("click", handleUIInteraction);
-        return () => window.removeEventListener("click", handleUIInteraction);
-    }, [eggs, location]); // Re-bind on location change
+        window.addEventListener("click", handleUIInteraction, { capture: true });
+        return () => window.removeEventListener("click", handleUIInteraction, { capture: true });
+    }, [eggs, location]);
 
-    // 3. Scroll to Bottom - GLOBAL
+    // 3. Scroll to Bottom - RESTRICTED to /easter-eggs
     useEffect(() => {
         const handleScroll = () => {
             // RESTRICTION: Only allow scroll trigger on /easter-eggs page
@@ -294,9 +302,9 @@ const EasterEggEngine = () => {
 
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
-    }, [eggs, location]); // Re-bind on location change
+    }, [eggs, location]);
 
-    // 4. Hover Element (data-ee-hover) - GLOBAL with debounce
+    // 4. Hover Element (data-ee-hover) - RESTRICTED to /easter-eggs
     useEffect(() => {
         const hoveredElements = new Set<string>();
 
@@ -341,9 +349,9 @@ const EasterEggEngine = () => {
             window.removeEventListener("mouseenter", handleMouseEnter, true);
             window.removeEventListener("mouseleave", handleMouseLeave, true);
         };
-    }, [eggs, location]); // Re-bind on location change
+    }, [eggs, location]);
 
-    // 5. Click Navigation Icon (data-ee) - GLOBAL
+    // 5. Click Navigation Icon (data-ee) - RESTRICTED to /easter-eggs
     useEffect(() => {
         const handleNavClick = (e: MouseEvent) => {
             // RESTRICTION: Only allow nav click trigger on /easter-eggs page
@@ -357,15 +365,17 @@ const EasterEggEngine = () => {
 
                 eggs.forEach(egg => {
                     if (egg.trigger_type === "click_nav_icon" && egg.trigger_value === triggerValue) {
+                        e.preventDefault();
+                        e.stopPropagation();
                         executeAction(egg);
                     }
                 });
             }
         };
 
-        window.addEventListener("click", handleNavClick);
-        return () => window.removeEventListener("click", handleNavClick);
-    }, [eggs, location]); // Re-bind on location change
+        window.addEventListener("click", handleNavClick, { capture: true });
+        return () => window.removeEventListener("click", handleNavClick, { capture: true });
+    }, [eggs, location]);
 
     // Track previous pathname to detect cross-page navigation
     const previousPathname = useRef(location.pathname);
@@ -380,30 +390,38 @@ const EasterEggEngine = () => {
         }
 
         const checkSectionTriggers = () => {
+            // RESTRICTION: Only allow navigation triggers if we are/were on /easter-eggs page
+            // Note: This effectively disables "Navigate to X" triggers unless X is on /easter-eggs
+            if (location.pathname !== '/easter-eggs' && previousPathname.current !== '/easter-eggs') return;
+
             const currentHash = location.hash; // e.g. "#about"
             const currentFullPath = location.pathname + location.hash; // e.g. "/#about"
+            const currentPath = location.pathname; // e.g. "/blog"
             const isNewPage = previousPathname.current !== location.pathname;
 
             eggs.forEach(egg => {
                 // Trigger if:
                 // 1. Egg is NOT found yet (always trigger)
                 // 2. OR User navigated from a different page (allow re-trigger for effect)
-                const shouldTrigger = !foundEggs.includes(egg.id) || isNewPage;
+                // 3. OR User is on the same page but hash changed (allow re-trigger)
+                const shouldTrigger = !foundEggs.includes(egg.id) || isNewPage || true;
 
                 if (egg.trigger_type === "navigate_section" && egg.trigger_value && shouldTrigger) {
-                    // Support multiple formats:
-                    // - "/#about" (preset format) -> match both "/#about" and "#about"
-                    // - "#about" (direct hash) -> match "#about"
-                    // - "about" (plain text) -> add "#" and match
                     let match = false;
 
                     if (egg.trigger_value.startsWith('/#')) {
-                        // Format: /#about - check both full path and hash
+                        // Format: /#about
+                        const pathPart = egg.trigger_value.replace('/#', '/');
+
                         match = currentFullPath === egg.trigger_value ||
-                            currentHash === egg.trigger_value.substring(1); // Remove leading /
+                            currentHash === egg.trigger_value.substring(1) ||
+                            currentPath === pathPart;
                     } else if (egg.trigger_value.startsWith('#')) {
                         // Format: #about - check hash only
                         match = currentHash === egg.trigger_value;
+                    } else if (egg.trigger_value.startsWith('/')) {
+                        // Format: /blog - check pathname
+                        match = currentPath === egg.trigger_value;
                     } else {
                         // Format: about - add # and check
                         match = currentHash === `#${egg.trigger_value}`;
@@ -420,11 +438,14 @@ const EasterEggEngine = () => {
         };
 
         checkSectionTriggers();
-    }, [eggs, location]); // Re-bind on location change
+    }, [eggs, location]);
 
-    // 7. Custom Event Trigger (for Run button) - GLOBAL
+    // 7. Custom Event Trigger (for Run button) - RESTRICTED to /easter-eggs
     useEffect(() => {
         const handleCustomTrigger = (e: CustomEvent) => {
+            // RESTRICTION: Only allow custom triggers on /easter-eggs page
+            if (location.pathname !== '/easter-eggs') return;
+
             const egg = e.detail;
             if (egg) {
                 executeAction(egg);

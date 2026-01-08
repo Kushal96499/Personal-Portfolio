@@ -14,8 +14,12 @@ import type {
     CertificateUpdate,
     ContactMessage,
     ContactMessageInsert,
-    ContactMessageUpdate
+
+    ContactMessageUpdate,
+
 } from '@/integrations/supabase/types';
+
+
 
 // Re-export types for backward compatibility
 export type { Blog };
@@ -134,6 +138,9 @@ export interface AboutMe {
     id: string;
     title: string;
     description: string;
+    profile_image_url?: string;
+    experience_years?: string;
+    projects_completed?: string;
     created_at: string;
     updated_at: string;
 }
@@ -823,7 +830,7 @@ export const api = {
         return data as AboutMe;
     },
 
-    updateAboutMe: async (data: { title: string; description: string }): Promise<AboutMe> => {
+    updateAboutMe: async (data: { title: string; description: string; profile_image_url?: string; experience_years?: string; projects_completed?: string }): Promise<AboutMe> => {
         // Check if exists
         const { data: existing } = await supabase.from('about_me').select('id').single();
 
@@ -1277,5 +1284,6 @@ export const api = {
 
     unsubscribeFromResumeData: (channel: any) => {
         supabase.removeChannel(channel);
-    }
+    },
+
 };

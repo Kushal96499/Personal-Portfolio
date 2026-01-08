@@ -1,9 +1,13 @@
 import { useEffect } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
+import { useLocation } from "react-router-dom";
 
 const CursorTrail = () => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  const location = useLocation();
+
+  if (location.pathname.startsWith('/admin')) return null;
 
   // Smooth springs for different elements
   const springConfig = { damping: 25, stiffness: 700 };
@@ -17,13 +21,23 @@ const CursorTrail = () => {
   const dotY = useSpring(mouseY, { damping: 30, stiffness: 800 });
 
   useEffect(() => {
+    let rafId: number | null = null;
+
     const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
+      if (rafId) return;
+
+      rafId = requestAnimationFrame(() => {
+        mouseX.set(e.clientX);
+        mouseY.set(e.clientY);
+        rafId = null;
+      });
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [mouseX, mouseY]);
 
   // Only render on non-touch devices to save performance
@@ -35,7 +49,7 @@ const CursorTrail = () => {
     <>
       {/* Main cursor glow */}
       <motion.div
-        className="fixed pointer-events-none z-[9999] w-8 h-8 rounded-full bg-primary/30 blur-xl"
+        className="fixed pointer-events-none z-[99999] w-8 h-8 rounded-full bg-white/30 blur-xl"
         style={{
           x: mainX,
           y: mainY,
@@ -46,7 +60,7 @@ const CursorTrail = () => {
 
       {/* Outer cursor ring */}
       <motion.div
-        className="fixed pointer-events-none z-[9999] w-6 h-6 rounded-full border-2 border-primary/50"
+        className="fixed pointer-events-none z-[99999] w-6 h-6 rounded-full border-2 border-white/50"
         style={{
           x: outerX,
           y: outerY,
@@ -57,7 +71,7 @@ const CursorTrail = () => {
 
       {/* Inner cursor dot */}
       <motion.div
-        className="fixed pointer-events-none z-[9999] w-2 h-2 rounded-full bg-primary"
+        className="fixed pointer-events-none z-[99999] w-2 h-2 rounded-full bg-white"
         style={{
           x: dotX,
           y: dotY,

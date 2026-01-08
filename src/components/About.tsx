@@ -1,99 +1,98 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Briefcase, GraduationCap, Loader2 } from "lucide-react";
-import { api, AboutMe, TimelineItem } from "@/services/api";
+import { Loader2 } from "lucide-react";
+import { api, AboutMe } from "@/services/api";
+import SectionWrapper from "@/components/ui/SectionWrapper";
+import GlassCard from "@/components/ui/GlassCard";
 
 const About = () => {
   const [aboutMe, setAboutMe] = useState<AboutMe | null>(null);
-  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [aboutData, timelineData] = await Promise.all([
-          api.getAboutMe(),
-          api.getTimelineItems()
-        ]);
+        const aboutData = await api.getAboutMe();
         setAboutMe(aboutData);
-        setTimelineItems(timelineData);
       } catch (error) {
         console.error("Failed to fetch about data:", error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <section id="about" className="py-20 relative min-h-[600px] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </section>
-    );
-  }
-
   return (
-    <section id="about" className="py-20 relative">
-      <div className="container mx-auto px-4">
+    <SectionWrapper id="about">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+        {/* Left: Image with Spotlight & 3D Rings */}
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="relative group perspective-1000"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            {aboutMe?.title?.split(' ').map((word, i, arr) => (
-              <span key={i} className={i === arr.length - 1 ? "text-gradient" : ""}>
-                {word}{" "}
-              </span>
-            )) || (
-                <>
-                  About <span className="text-gradient">Me</span>
-                </>
+          {/* Spotlight Effect */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+          <div className="relative w-72 h-72 md:w-96 md:h-96 mx-auto transform-style-3d group-hover:rotate-y-12 transition-transform duration-700">
+            {/* 3D Rings */}
+            <div className="absolute inset-0 rounded-full border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.5)] transform translate-z-20" />
+            <div className="absolute -inset-4 rounded-full border border-white/5 animate-pulse-glow transform translate-z-10" />
+
+            <div className="absolute inset-2 rounded-full overflow-hidden border border-white/10 bg-[#111111] shadow-2xl transform translate-z-30">
+              {aboutMe?.profile_image_url ? (
+                <img
+                  src={aboutMe.profile_image_url}
+                  alt="Profile"
+                  className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-500 scale-100 group-hover:scale-105"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-white/5 text-white/20">
+                  <Loader2 className="w-12 h-12 animate-spin" />
+                </div>
               )}
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto whitespace-pre-line">
-            {aboutMe?.description || "Passionate cybersecurity enthusiast with hands-on experience in network security, ethical hacking, and incident response."}
-          </p>
+            </div>
+          </div>
         </motion.div>
 
-        <div className="max-w-3xl mx-auto">
-          {timelineItems.map((item, index) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
-              viewport={{ once: true }}
-              className="flex flex-col sm:flex-row gap-6 mb-8 relative"
-            >
-              <div className="glass p-4 rounded-lg flex-shrink-0 glow-cyan w-16 h-16 flex items-center justify-center mx-auto sm:mx-0">
-                {item.icon_type === 'graduation-cap' ? (
-                  <GraduationCap className="text-accent" />
-                ) : (
-                  <Briefcase className="text-primary" />
-                )}
-              </div>
-              <div className="glass p-6 rounded-lg flex-1 text-center sm:text-left">
-                <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                <p className="text-primary mb-2">{item.period}</p>
-                <p className="text-muted-foreground">{item.description}</p>
-              </div>
-            </motion.div>
-          ))}
+        {/* Right: Content */}
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: true }}
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight drop-shadow-lg text-shadow-premium">
+            {aboutMe?.title || "About Me"}
+          </h2>
+          <div className="space-y-6 text-lg md:text-xl text-white/80 leading-relaxed whitespace-pre-wrap font-light">
+            {aboutMe?.description || "Loading..."}
+          </div>
 
-          {timelineItems.length === 0 && (
-            <div className="text-center text-muted-foreground">
-              No timeline items found.
-            </div>
-          )}
-        </div>
+          {/* Apple-style Metric Blocks */}
+          <div className="mt-12 grid grid-cols-2 gap-6">
+            <GlassCard className="p-6 group">
+              <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4 opacity-50" />
+              <h3 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tighter group-hover:text-blue-400 transition-colors">
+                {aboutMe?.experience_years || "3+"}
+              </h3>
+              <p className="text-sm md:text-base text-white/50 font-medium uppercase tracking-wider">Years Experience</p>
+            </GlassCard>
+
+            <GlassCard className="p-6 group">
+              <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4 opacity-50" />
+              <h3 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tighter group-hover:text-purple-400 transition-colors">
+                {aboutMe?.projects_completed || "50+"}
+              </h3>
+              <p className="text-sm md:text-base text-white/50 font-medium uppercase tracking-wider">Projects Completed</p>
+            </GlassCard>
+          </div>
+        </motion.div>
       </div>
-    </section>
+    </SectionWrapper>
   );
 };
 

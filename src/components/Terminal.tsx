@@ -115,22 +115,22 @@ const Terminal = () => {
           viewport={{ once: true }}
           className="max-w-4xl mx-auto"
         >
-          <div className="glass rounded-lg overflow-hidden glow-cyan">
+          <div className="glass rounded-xl overflow-hidden border border-white/10 shadow-2xl bg-[#050505]">
             {/* Terminal Header */}
-            <div className="bg-card/50 border-b border-border/50 px-4 py-3 flex items-center gap-2">
+            <div className="bg-[#111111] border-b border-white/5 px-4 py-3 flex items-center gap-2">
               <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-destructive/80" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                <div className="w-3 h-3 rounded-full bg-primary/80" />
+                <div className="w-3 h-3 rounded-full bg-[#FF5F56] hover:bg-[#FF5F56]/80 transition-colors" />
+                <div className="w-3 h-3 rounded-full bg-[#FFBD2E] hover:bg-[#FFBD2E]/80 transition-colors" />
+                <div className="w-3 h-3 rounded-full bg-[#27C93F] hover:bg-[#27C93F]/80 transition-colors" />
               </div>
-              <div className="flex items-center gap-2 ml-4">
-                <TerminalIcon size={16} className="text-primary" />
-                <span className="text-sm text-muted-foreground">root@kushal-security:~$</span>
+              <div className="flex items-center gap-2 ml-4 flex-1 justify-center mr-12 opacity-60">
+                <TerminalIcon size={14} className="text-white/60" />
+                <span className="text-sm font-mono text-white/60">root@kushal-security:~</span>
               </div>
             </div>
 
             {/* Terminal Content */}
-            <div className="p-4 md:p-6 font-mono text-xs md:text-sm bg-background/90 min-h-[300px] md:min-h-[400px] overflow-x-auto scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent">
+            <div className="p-4 md:p-6 font-mono text-xs md:text-sm bg-black/95 text-white/90 h-[450px] md:h-[550px] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
               {displayedCommands.map((cmd, index) => (
                 <div key={index} className="mb-6 min-w-max">
                   <div className="flex items-center gap-2 text-primary mb-2">
@@ -144,9 +144,9 @@ const Terminal = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: lineIndex * 0.1 }}
                       className={`pl-4 ${line.includes("✓") ? "text-green-400" :
-                          line.includes("⚠") ? "text-yellow-400" :
-                            line.includes("✗") ? "text-red-400" :
-                              "text-muted-foreground"
+                        line.includes("⚠") ? "text-yellow-400" :
+                          line.includes("✗") ? "text-red-400" :
+                            "text-muted-foreground"
                         }`}
                     >
                       {line}

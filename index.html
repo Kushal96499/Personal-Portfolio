@@ -10,11 +10,13 @@
         script-src 
           'self'
           'unsafe-inline'
+          'unsafe-eval'
           https://challenges.cloudflare.com
           https://static.cloudflareinsights.com
           https://*.cloudflare.com
           https://www.googletagmanager.com
-          https://www.google-analytics.com;
+          https://www.google-analytics.com
+          https://cdn.jsdelivr.net;
 
         style-src 
           'self'
@@ -38,15 +40,30 @@
 
         connect-src 
           'self'
+          data:
+          blob:
           https://www.google-analytics.com
           https://analytics.google.com
           https://stats.g.doubleclick.net
           https://*.cloudflare.com
-          https://*.supabase.co;
+          https://*.supabase.co
+          https://api.ipify.org
+          https://ipapi.co
+          https:
+          wss:
+          https://cdn.jsdelivr.net;
+        
+        worker-src
+          'self'
+          blob:
+          data:
+          https://cdn.jsdelivr.net;
 
         frame-src 
           'self'
-          https://challenges.cloudflare.com;
+          https://challenges.cloudflare.com
+          https://www.openstreetmap.org
+          https://maps.google.com;
 
         manifest-src 'self';
         object-src 'none';
@@ -73,7 +90,7 @@
   <meta name="description"
     content="Portfolio of Kushal Kumawat, a Cybersecurity Enthusiast. Specializing in Network Security, Ethical Hacking, Incident Response, and Vulnerability Assessment. View projects and certifications." />
   <meta name="keywords"
-    content="Kushal Kumawat,Portfolio, Cybersecurity Portfolio,BCA, Biyani, Biyani Group of Colleges,Biyani Collegec of Science and Management, Cybersecurity, Ethical Hacking, Network Security, Incident Response, Vulnerability Assessment, Penetration Testing, Kali Linux, Nmap, Wireshark, SQL Injection, Jaipur, India, Security Analyst, Student, Projects" />
+    content="Kushal Kumawat, Portfolio, Cybersecurity Portfolio, BCA, Biyani, Biyani Group of Colleges, Biyani College of Science and Management, Cybersecurity, Ethical Hacking, Network Security, Incident Response, Vulnerability Assessment, Penetration Testing, Kali Linux, Nmap, Wireshark, SQL Injection, Jaipur, India, Security Analyst, Student, Projects, PDF Tools, Merge PDF, Split PDF, Compress PDF, PDF Editor, OCR PDF, Business Tools, Invoice Generator, GST Calculator, EMI Calculator, Expense Tracker, Cyber Tools, IP Lookup, DNS Lookup, Attack Surface Analyzer, Password Generator, Hash Generator, Subdomain Finder, Port Scanner, Whois Lookup, SSL Checker, URL Encoder, Binary Translator, Base64 Converter, JWT Decoder, Regex Tester, Markdown Editor, Color Picker, Image Compressor, QR Code Generator" />
   <meta name="author" content="Kushal Kumawat" />
   <meta name="robots" content="index, follow" />
   <meta name="language" content="English" />

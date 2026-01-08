@@ -6,6 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Calendar, Clock, Tag } from 'lucide-react';
 import { toast } from 'sonner';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
+import remarkGfm from 'remark-gfm';
 
 const BlogDetail = () => {
     const { slug } = useParams<{ slug: string }>();
@@ -59,11 +63,11 @@ const BlogDetail = () => {
                 <div className="container flex h-16 items-center">
                     <Button
                         variant="ghost"
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate('/blog')}
                         className="gap-2"
                     >
                         <ArrowLeft className="w-4 h-4" />
-                        Back to Home
+                        Back to All Posts
                     </Button>
                 </div>
             </header>
@@ -128,15 +132,78 @@ const BlogDetail = () => {
 
                 {/* Content */}
                 <div className="prose prose-invert prose-lg max-w-none">
-                    <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeRaw, rehypeSanitize]}
+                        components={{
+                            img: ({ node, ...props }) => (
+                                <img
+                                    {...props}
+                                    className="max-w-full h-auto rounded-lg my-8 mx-auto block shadow-2xl border border-white/10"
+                                    style={{ maxHeight: '600px', objectFit: 'contain' }}
+                                />
+                            ),
+                            table: ({ node, ...props }) => (
+                                <div className="overflow-x-auto my-8 rounded-lg border border-white/10 bg-white/5">
+                                    <table {...props} className="w-full border-collapse text-sm md:text-base" />
+                                </div>
+                            ),
+                            thead: ({ node, ...props }) => (
+                                <thead {...props} className="bg-white/10 text-white font-bold" />
+                            ),
+                            th: ({ node, ...props }) => (
+                                <th {...props} className="p-4 text-left border-b border-white/10 whitespace-nowrap" />
+                            ),
+                            td: ({ node, ...props }) => (
+                                <td {...props} className="p-4 border-b border-white/5" />
+                            ),
+                            p: ({ node, ...props }) => (
+                                <p {...props} className="leading-loose mb-6 text-white/80 text-lg" />
+                            ),
+                            ul: ({ node, ...props }) => (
+                                <ul {...props} className="list-disc pl-6 mb-6 space-y-2 text-white/80" />
+                            ),
+                            ol: ({ node, ...props }) => (
+                                <ol {...props} className="list-decimal pl-6 mb-6 space-y-2 text-white/80" />
+                            ),
+                            li: ({ node, ...props }) => (
+                                <li {...props} className="leading-relaxed pl-2" />
+                            ),
+                            code: ({ node, className, children, ...props }) => {
+                                const match = /language-(\w+)/.exec(className || '');
+                                const isInline = !match && !String(children).includes('\n');
+                                return isInline ? (
+                                    <code {...props} className="bg-blue-500/10 text-blue-300 px-1.5 py-0.5 rounded text-sm font-mono border border-blue-500/20">
+                                        {children}
+                                    </code>
+                                ) : (
+                                    <div className="overflow-x-auto my-6 rounded-xl bg-[#0A0A0A] p-6 border border-white/10 shadow-inner">
+                                        <code {...props} className="block font-mono text-sm leading-relaxed text-gray-300 min-w-max">
+                                            {children}
+                                        </code>
+                                    </div>
+                                );
+                            },
+                            blockquote: ({ node, ...props }) => (
+                                <blockquote {...props} className="border-l-4 border-blue-500/50 pl-6 italic text-white/60 my-8 text-xl" />
+                            ),
+                            a: ({ node, ...props }) => (
+                                <a {...props} className="text-blue-400 hover:text-blue-300 hover:underline underline-offset-4 transition-colors font-medium" target="_blank" rel="noopener noreferrer" />
+                            ),
+                            h1: ({ node, ...props }) => <h1 {...props} className="text-4xl font-bold mt-12 mb-6 text-white tracking-tight" />,
+                            h2: ({ node, ...props }) => <h2 {...props} className="text-3xl font-bold mt-10 mb-5 text-white tracking-tight" />,
+                            h3: ({ node, ...props }) => <h3 {...props} className="text-2xl font-bold mt-8 mb-4 text-white/90" />,
+                            hr: ({ node, ...props }) => <hr {...props} className="my-12 border-white/10" />,
+                        }}
+                    >
                         {blog.content}
-                    </div>
+                    </ReactMarkdown>
                 </div>
 
                 {/* Footer */}
                 <div className="mt-12 pt-8 border-t border-border/50">
                     <Button
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate('/blog')}
                         variant="outline"
                         className="gap-2"
                     >

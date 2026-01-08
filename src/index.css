@@ -1,249 +1,182 @@
-/* Import Orbitron font for cyber-style text */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 222 47% 5%;
-    --foreground: 180 100% 95%;
-
-    --card: 222 47% 8%;
-    --card-foreground: 180 100% 95%;
-
-    --popover: 222 47% 8%;
-    --popover-foreground: 180 100% 95%;
-
-    --primary: 193 100% 50%;
-    --primary-foreground: 222 47% 5%;
-
-    --secondary: 271 76% 53%;
-    --secondary-foreground: 180 100% 95%;
-
-    --muted: 222 47% 15%;
-    --muted-foreground: 180 20% 70%;
-
-    --accent: 193 100% 50%;
-    --accent-foreground: 222 47% 5%;
-
+    --background: 240 10% 3.5%;
+    --foreground: 0 0% 100%;
+    --card: 240 10% 4%;
+    --card-foreground: 0 0% 100%;
+    --popover: 240 10% 4%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 240 5% 10%;
+    --secondary-foreground: 240 5% 65%;
+    --muted: 240 5% 10%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 220 100% 65%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 222 47% 20%;
-    --input: 222 47% 20%;
-    --ring: 193 100% 50%;
-
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 0 0% 100%;
     --radius: 0.75rem;
-
-    --gradient-cyber: linear-gradient(135deg, hsl(193 100% 50%), hsl(271 76% 53%));
-    --gradient-dark: linear-gradient(180deg, hsl(222 47% 5%), hsl(222 47% 8%));
-    --glow-cyan: 0 0 20px hsl(193 100% 50% / 0.5);
-    --glow-purple: 0 0 20px hsl(271 76% 53% / 0.5);
-
-    --sidebar-background: 222 47% 5%;
-    --sidebar-foreground: 180 100% 95%;
-    --sidebar-primary: 193 100% 50%;
-    --sidebar-primary-foreground: 222 47% 5%;
-    --sidebar-accent: 222 47% 15%;
-    --sidebar-accent-foreground: 180 100% 95%;
-    --sidebar-border: 222 47% 20%;
-    --sidebar-ring: 193 100% 50%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
 
+  /* Global Custom Cursor Logic - RESTORED */
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
     cursor: none;
-    /* Responsive base font size */
-    font-size: clamp(14px, 1vw + 0.5rem, 16px);
+    @apply bg-background text-foreground font-sans antialiased relative overflow-x-hidden;
+    background-color: #050505;
+    min-height: 100vh;
   }
 
-  /* Show cursor on admin pages */
-  body:has([data-admin-panel]) {
-    cursor: auto;
-  }
-
-  body:has([data-admin-panel]) * {
+  /* Only show default cursor for Admin Panel */
+  [data-admin-panel],
+  [data-admin-panel] * {
     cursor: auto !important;
   }
 
-  html {
-    scroll-behavior: smooth;
-    overflow-x: hidden;
-    /* Prevent horizontal scroll globally */
-  }
-
+  /* Force pointer cursor for interactive elements but keep it hidden if custom cursor handles it */
   a,
-  button {
-    cursor: none;
+  button,
+  [role="button"],
+  input,
+  textarea,
+  select {
+    cursor: none !important;
   }
 
-  /* Override cursor for admin panel elements */
-  [data-admin-panel] a,
-  [data-admin-panel] button,
-  [data-admin-panel] input,
-  [data-admin-panel] textarea,
-  [data-admin-panel] select {
-    cursor: pointer !important;
-  }
-
-  [data-admin-panel] input[type="text"],
-  [data-admin-panel] input[type="email"],
-  [data-admin-panel] input[type="password"],
-  [data-admin-panel] textarea {
-    cursor: text !important;
-  }
-
-  /* Ensure cursor is visible in dialogs/modals */
-  [role="dialog"],
-  [role="dialog"] *,
-  [data-radix-dialog-content],
-  [data-radix-dialog-content] *,
-  [data-radix-dialog-overlay] {
-    cursor: auto !important;
-  }
-
-  [role="dialog"] button,
-  [data-radix-dialog-content] button,
-  [role="dialog"] a,
-  [data-radix-dialog-content] a {
-    cursor: pointer !important;
-  }
-
-  /* Custom Scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 4px;
-  }
-
-  :hover::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.3);
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.5);
-  }
-
-  /* Mobile Container Fix & Safe Padding */
-  .container {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: clamp(1rem, 5vw, 2rem);
-    /* Responsive padding */
-    padding-right: clamp(1rem, 5vw, 2rem);
-    max-width: 1400px;
-    /* Limit max width for ultrawide */
-  }
-
-  /* Safe area insets for mobile devices with notches */
-  @supports (padding: max(0px)) {
-    .container {
-      padding-left: max(clamp(1rem, 5vw, 2rem), env(safe-area-inset-left));
-      padding-right: max(clamp(1rem, 5vw, 2rem), env(safe-area-inset-right));
-    }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading font-semibold tracking-tight;
   }
 }
 
+
 @layer utilities {
-  .glow-cyan {
-    box-shadow: var(--glow-cyan);
+  .glass-card {
+    @apply bg-white/[0.03] backdrop-blur-md border border-white/[0.08] shadow-premium;
   }
 
-  .glow-purple {
-    box-shadow: var(--glow-purple);
+  .glass-premium {
+    @apply backdrop-blur-xl bg-white/[0.03] border border-white/[0.08] shadow-glass-inset;
   }
 
-  .gradient-cyber {
-    background: var(--gradient-cyber);
+  .text-gradient-premium {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#4C8CFF] to-[#8EA6FF];
   }
 
-  .gradient-dark {
-    background: var(--gradient-dark);
+  .text-shadow-premium {
+    text-shadow: 0 0 20px rgba(76, 140, 255, 0.3);
   }
 
-  .glass {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  .card-hover-effect {
+    @apply transition-all duration-300 hover:border-accent/50 hover:shadow-glow hover:-translate-y-1;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Custom scrollbar styles for invoice generators */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.scrollbar-thin:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hover\:scrollbar-thumb-white\/20:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media print {
+  body * {
+    visibility: hidden;
   }
 
-  .text-gradient {
-    background: var(--gradient-cyber);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  #docx-preview-print-target,
+  #docx-preview-print-target *,
+  #excel-print-target,
+  #excel-print-target *,
+  #ppt-print-target,
+  #ppt-print-target *,
+  #jpg-print-target,
+  #jpg-print-target *,
+  #html-print-target,
+  #html-print-target * {
+    visibility: visible;
   }
 
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-
-    100% {
-      transform: translateX(200%);
-    }
+  #docx-preview-print-target,
+  #excel-print-target,
+  #ppt-print-target,
+  #jpg-print-target,
+  #html-print-target {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: white;
   }
 
-  .animate-spin-slow {
-    animation: spin 3s linear infinite;
+  /* Ensure pages break correctly */
+  .docx-preview-content section,
+  .print-page-break {
+    break-after: page;
+    page-break-after: always;
+    margin: 0 !important;
+    box-shadow: none !important;
   }
 
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Logo Neon Glow Effect */
-  .logo-neon-glow {
-    filter: drop-shadow(0 0 8px rgba(0, 234, 255, 0.6)) drop-shadow(0 0 16px rgba(123, 92, 255, 0.4));
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-
-  .logo-neon-glow:hover {
-    filter: drop-shadow(0 0 12px rgba(0, 234, 255, 0.8)) drop-shadow(0 0 24px rgba(123, 92, 255, 0.6));
-  }
-
-  @keyframes pulse-glow {
-
-    0%,
-    100% {
-      filter: drop-shadow(0 0 8px rgba(0, 234, 255, 0.6)) drop-shadow(0 0 16px rgba(123, 92, 255, 0.4));
-    }
-
-    50% {
-      filter: drop-shadow(0 0 12px rgba(0, 234, 255, 0.8)) drop-shadow(0 0 20px rgba(123, 92, 255, 0.5));
-    }
-  }
-
-  /* Round Logo Image */
-  .logo-round {
-    border-radius: 50%;
-    object-fit: cover;
+  @page {
+    margin: 0;
+    size: auto;
   }
 }

@@ -76,11 +76,12 @@ export const EasterEggsProvider = ({ children }: { children: React.ReactNode }) 
         localStorage.setItem('foundEggs', JSON.stringify(newFound));
 
         // Update database
-        try {
-            await api.updateEasterEgg(eggId, { found: true });
-        } catch (error) {
-            console.error('Failed to update egg found status in database:', error);
-        }
+        // Update database - Removed as 'found' column does not exist in schema
+        // try {
+        //     await api.updateEasterEgg(eggId, { found: true });
+        // } catch (error) {
+        //     console.error('Failed to update egg found status in database:', error);
+        // }
 
         // Emit event for real-time UI updates
         window.dispatchEvent(new CustomEvent('easterEggUnlocked', { detail: { eggId, egg } }));

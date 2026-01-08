@@ -1,9 +1,14 @@
 import { motion } from "framer-motion";
-import { Award } from "lucide-react";
+import { Award, ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
 import { api } from "@/services/api";
 import type { Certificate } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import { CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import SectionWrapper from "@/components/ui/SectionWrapper";
+import GlassCard from "@/components/ui/GlassCard";
 
 const Certifications = () => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
@@ -29,103 +34,99 @@ const Certifications = () => {
     return (
       <section className="py-20 relative">
         <div className="text-center py-12">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading certificates...</p>
+          <div className="w-12 h-12 border-2 border-white/20 border-t-blue-500 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-white/40">Loading certificates...</p>
         </div>
       </section>
     );
   }
 
-
   return (
-    <section id="certificates" className="py-20 relative">
-      <div className="absolute inset-0 bg-gradient-dark opacity-50" />
+    <SectionWrapper id="certificates">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        viewport={{ once: true }}
+        className="text-center mb-16"
+      >
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight text-shadow-premium">
+          Certifications
+        </h2>
+        <p className="text-white/60 text-lg max-w-2xl mx-auto font-light">
+          Professional milestones and verified skills.
+        </p>
+      </motion.div>
 
-      <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Certifications & <span className="text-gradient">Achievements</span>
-          </h2>
-          <p className="text-muted-foreground">
-            Professional certifications and continuous learning journey
-          </p>
-        </motion.div>
+      {/* Empty State */}
+      {!loading && certificates.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-white/40">No certifications added yet.</p>
+        </div>
+      )}
 
-        {/* Empty State */}
-        {!loading && certificates.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No certifications added yet.</p>
-          </div>
-        )}
+      {/* Certifications Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {certificates.map((cert, index) => (
+          <motion.div
+            key={cert.id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+            viewport={{ once: true }}
+          >
+            <GlassCard className="h-full group p-0 overflow-hidden rounded-2xl">
+              <CardContent className="p-0 flex flex-col h-full">
+                {/* Certificate Image */}
+                <div className="aspect-[4/3] bg-[#0A0A0A] border-b border-white/5 flex items-center justify-center relative overflow-hidden p-8 group-hover:bg-[#0F0F0F] transition-colors duration-500">
+                  {/* Soft Glow Behind Image */}
+                  <div className="absolute inset-0 bg-radial-gradient from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-        {/* Certifications Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {certificates.map((cert, index) => (
-            <motion.div
-              key={cert.id}
-              initial={{ opacity: 0, y: 50, rotateX: -20 }}
-              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              whileHover={{
-                scale: 1.05,
-                rotateY: 5,
-                boxShadow: "0 0 30px rgba(0, 217, 255, 0.5)"
-              }}
-              className="glass p-6 rounded-lg relative overflow-hidden transform-gpu"
-            >
-              {/* Certificate Image */}
-              <div className="aspect-video bg-black/50 rounded-md flex items-center justify-center border border-border relative overflow-hidden mb-4">
-                {cert.image_url ? (
-                  <img
-                    src={cert.image_url}
-                    alt={cert.title}
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <Award className="w-12 h-12 text-primary" />
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-white mb-2 group-hover:text-neon-cyan transition-colors">
-                  {cert.title}
-                </h3>
-                <div className="flex items-center justify-between mt-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${cert.status === 'In Progress'
-                    ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50'
-                    : 'bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/50'
-                    }`}>
-                    {cert.status || 'Completed'}
-                  </span>
-                  {cert.credential_link && (
-                    <a
-                      href={cert.credential_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-400 hover:text-white transition-colors flex items-center gap-1 text-sm"
-                    >
-                      <span>View Credential</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-external-link"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
-                    </a>
+                  {cert.image_url ? (
+                    <img
+                      src={cert.image_url}
+                      alt={cert.title}
+                      className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 relative z-10 drop-shadow-2xl"
+                    />
+                  ) : (
+                    <div className="bg-white/5 p-6 rounded-full relative z-10">
+                      <Award className="w-12 h-12 text-white/40" />
+                    </div>
                   )}
                 </div>
-              </div>
 
-              {/* Decorative element */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-cyber opacity-50" />
-            </motion.div>
-          ))}
-        </div>
+                {/* Content */}
+                <div className="p-6 flex flex-col flex-grow">
+                  <div className="flex justify-between items-start gap-4 mb-4">
+                    <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-2 leading-tight">
+                      {cert.title}
+                    </h3>
+                    <Badge variant="outline" className="shrink-0 bg-white/5 border-white/10 text-white/60 text-xs font-medium uppercase tracking-wider px-2 py-0.5">
+                      {cert.status || 'Completed'}
+                    </Badge>
+                  </div>
+
+                  <div className="mt-auto pt-4 border-t border-white/5">
+                    {cert.credential_link && (
+                      <Button variant="ghost" size="sm" className="w-full gap-2 text-white/60 hover:text-white hover:bg-white/5 justify-between group/btn" asChild>
+                        <a
+                          href={cert.credential_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <span className="font-medium">View Credential</span>
+                          <ExternalLink size={14} className="group-hover/btn:translate-x-1 transition-transform" />
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </GlassCard>
+          </motion.div>
+        ))}
       </div>
-    </section>
+    </SectionWrapper>
   );
 };
 

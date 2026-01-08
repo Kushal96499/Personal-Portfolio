@@ -37,16 +37,20 @@ const StatCard = ({
     to: string;
 }) => (
     <Link to={to}>
-        <Card className="bg-card/50 backdrop-blur-sm border-primary/10 hover:border-primary/30 transition-all duration-300 group cursor-pointer hover:scale-105">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+        <Card className="bg-white/[0.03] border-white/[0.08] backdrop-blur-xl hover:bg-white/[0.05] hover:border-blue-500/30 transition-all duration-300 group cursor-pointer hover:scale-105 relative overflow-hidden shadow-premium">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                <CardTitle className="text-sm font-medium text-white/60 group-hover:text-white transition-colors">
                     {title}
                 </CardTitle>
-                <Icon className={`h-5 w-5 ${color} drop-shadow-[0_0_8px_rgba(0,0,0,0.5)]`} />
+                <div className={`p-2 rounded-xl bg-white/5 border border-white/5 ${color.replace('text-', 'group-hover:text-').replace('500', '400')} group-hover:bg-white/10 transition-all duration-300`}>
+                    <Icon className={`h-5 w-5 ${color} group-hover:scale-110 transition-transform duration-300`} />
+                </div>
             </CardHeader>
-            <CardContent>
-                <div className="text-3xl font-bold font-orbitron">{value}</div>
+            <CardContent className="relative z-10">
+                <div className="text-3xl font-bold text-white tracking-tight">{value}</div>
             </CardContent>
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
         </Card>
     </Link>
 );
@@ -60,22 +64,22 @@ const SystemStatusCard = ({
     status: boolean | null;
     icon: any;
 }) => (
-    <Card className="bg-card/50 backdrop-blur-sm border-primary/10">
-        <CardContent className="p-4 flex items-center justify-between gap-2">
+    <Card className="bg-white/[0.03] border-white/[0.08] backdrop-blur-xl shadow-sm">
+        <CardContent className="p-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-                <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
-                    <Icon className="w-5 h-5 text-primary" />
+                <div className="p-2 rounded-lg bg-white/5 border border-white/5 flex-shrink-0">
+                    <Icon className="w-5 h-5 text-blue-400" />
                 </div>
-                <span className="font-medium truncate" title={label}>{label}</span>
+                <span className="font-medium truncate text-white/80" title={label}>{label}</span>
             </div>
             {status === null ? (
                 <Loader2 className="w-5 h-5 text-yellow-500 animate-spin flex-shrink-0" />
             ) : status === true ? (
-                <div className="text-green-500 flex-shrink-0" title="Operational">
+                <div className="text-emerald-400 flex-shrink-0 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" title="Operational">
                     <CheckCircle2 className="w-5 h-5" />
                 </div>
             ) : (
-                <div className="text-red-500 flex-shrink-0" title={typeof status === 'string' ? status : 'Error'}>
+                <div className="text-red-400 flex-shrink-0 drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" title={typeof status === 'string' ? status : 'Error'}>
                     <XCircle className="w-5 h-5" />
                 </div>
             )}
@@ -116,10 +120,10 @@ const getEntityIcon = (entityType: string) => {
 // Helper function to get badge variant for action type
 const getActionBadge = (actionType: string) => {
     switch (actionType) {
-        case 'created': return { text: 'New', variant: 'default' as const };
-        case 'updated': return { text: 'Updated', variant: 'secondary' as const };
-        case 'deleted': return { text: 'Deleted', variant: 'destructive' as const };
-        default: return { text: 'Activity', variant: 'outline' as const };
+        case 'created': return { text: 'New', className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' };
+        case 'updated': return { text: 'Updated', className: 'bg-blue-500/10 text-blue-400 border-blue-500/20' };
+        case 'deleted': return { text: 'Deleted', className: 'bg-red-500/10 text-red-400 border-red-500/20' };
+        default: return { text: 'Activity', className: 'bg-white/5 text-white/60 border-white/10' };
     }
 };
 
@@ -216,26 +220,26 @@ const Dashboard = () => {
         return (
             <div className="flex items-center justify-center h-96">
                 <div className="text-center space-y-4">
-                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-                    <p className="text-muted-foreground">Loading Dashboard...</p>
+                    <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto" />
+                    <p className="text-white/40">Loading Dashboard...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-10">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold font-orbitron text-gradient">Dashboard</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Portfolio content overview</p>
+                    <h2 className="text-3xl font-bold text-white tracking-tight">Dashboard</h2>
+                    <p className="text-white/60 mt-1">Portfolio content overview and system status</p>
                 </div>
             </div>
 
             {/* System Status Section */}
             <div className="space-y-4">
-                <h3 className="text-xl font-bold font-orbitron flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-primary" />
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-blue-400" />
                     System Status
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -268,7 +272,7 @@ const Dashboard = () => {
             </div>
 
             {/* Real Stats Grid */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <StatCard
                     title="Total Projects"
                     value={stats.projects}
@@ -287,7 +291,7 @@ const Dashboard = () => {
                     title="Contact Messages"
                     value={stats.messages}
                     icon={MessageSquare}
-                    color="text-green-500"
+                    color="text-emerald-500"
                     to="/admin/messages"
                 />
                 <StatCard
@@ -321,36 +325,36 @@ const Dashboard = () => {
             </div>
 
             {/* Activity Log */}
-            <Card className="bg-card/50 backdrop-blur-sm border-primary/10">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-primary" />
+            <Card className="bg-white/[0.03] border-white/[0.08] backdrop-blur-xl shadow-premium">
+                <CardHeader className="border-b border-white/[0.08]">
+                    <CardTitle className="flex items-center gap-2 text-white">
+                        <Activity className="w-5 h-5 text-blue-400" />
                         Recent Activity
                     </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                     <div className="space-y-4">
                         {activities.length > 0 ? (
                             activities.map((activity) => {
                                 const EntityIcon = getEntityIcon(activity.entity_type);
                                 const badge = getActionBadge(activity.action_type);
                                 return (
-                                    <div key={activity.id} className="flex items-center gap-4 border-b border-border/50 pb-4 last:border-0 last:pb-0">
-                                        <div className="flex-shrink-0">
-                                            <EntityIcon className="w-5 h-5 text-primary" />
+                                    <div key={activity.id} className="flex items-center gap-4 border-b border-white/[0.05] pb-4 last:border-0 last:pb-0 group">
+                                        <div className="p-2 rounded-lg bg-white/5 border border-white/5 group-hover:bg-white/10 transition-colors">
+                                            <EntityIcon className="w-4 h-4 text-white/80" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium truncate">{activity.description}</p>
-                                            <p className="text-xs text-muted-foreground">{formatRelativeTime(activity.created_at)}</p>
+                                            <p className="text-sm font-medium text-white/90 truncate">{activity.description}</p>
+                                            <p className="text-xs text-white/40">{formatRelativeTime(activity.created_at)}</p>
                                         </div>
-                                        <Badge variant={badge.variant} className="text-xs flex-shrink-0">
+                                        <Badge variant="outline" className={`text-xs flex-shrink-0 border ${badge.className}`}>
                                             {badge.text}
                                         </Badge>
                                     </div>
                                 );
                             })
                         ) : (
-                            <p className="text-sm text-muted-foreground text-center py-8">No recent activity</p>
+                            <p className="text-sm text-white/40 text-center py-8">No recent activity</p>
                         )}
                     </div>
                 </CardContent>

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useSiteControls } from "@/contexts/SiteControlsContext";
-import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Skills from "@/components/Skills";
@@ -10,12 +9,12 @@ import Certifications from "@/components/Certifications";
 import Resume from "@/components/Resume";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
-import CursorTrail from "@/components/CursorTrail";
 import ScrollProgress from "@/components/ScrollProgress";
 import Blog from "@/components/Blog";
-import ParticleBackground from "@/components/ParticleBackground";
+
 import Testimonials from "@/components/Testimonials";
 import ThreatMap from "@/components/ThreatMap";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useEasterEggs } from "@/contexts/EasterEggsContext";
 
 const Index = () => {
@@ -23,17 +22,15 @@ const Index = () => {
   const { controls, loading } = useSiteControls();
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   return (
     <div className="min-h-screen relative">
-      <ParticleBackground />
+
 
       <div className="relative z-10">
-        <CursorTrail />
-        <ScrollProgress />
-        <Navbar onLogoClick={() => { }} />
+
         {controls.home_hero && <Hero />}
         <About />
         {controls.skills && <Skills />}
@@ -45,7 +42,7 @@ const Index = () => {
         {controls.certificates && <Certifications />}
         <Resume />
         {controls.contact && <Contact />}
-        <Footer onCopyrightClick={() => { }} />
+        <Footer />
       </div>
     </div>
   );
