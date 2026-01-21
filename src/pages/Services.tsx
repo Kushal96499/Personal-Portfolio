@@ -837,7 +837,7 @@ const ServicesPage = () => {
                                                     onChange={e => setFormData({ ...formData, fullName: e.target.value })}
                                                     disabled={!availability.available}
                                                     className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-white/30 focus:bg-black/60 transition-all disabled:opacity-50"
-                                                    placeholder="Your name"
+                                                    placeholder="Enter your full name"
                                                 />
                                             </div>
 
@@ -852,7 +852,7 @@ const ServicesPage = () => {
                                                         onChange={e => setFormData({ ...formData, email: e.target.value })}
                                                         disabled={!availability.available}
                                                         className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-white/30 focus:bg-black/60 transition-all disabled:opacity-50"
-                                                        placeholder="Your email"
+                                                        placeholder="Enter your email address"
                                                     />
                                                 </div>
                                                 <div>
@@ -864,7 +864,7 @@ const ServicesPage = () => {
                                                         onChange={e => setFormData({ ...formData, whatsapp: e.target.value })}
                                                         disabled={!availability.available}
                                                         className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-white/30 focus:bg-black/60 transition-all disabled:opacity-50"
-                                                        placeholder="+1234567890"
+                                                        placeholder="+91 XXXXX XXXXX"
                                                     />
                                                 </div>
                                             </div>

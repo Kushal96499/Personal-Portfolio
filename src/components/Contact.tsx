@@ -306,7 +306,7 @@ const Contact = () => {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/30 focus:bg-black/60 transition-all"
-                        placeholder="John Doe"
+                        placeholder="Enter your full name"
                         disabled={step !== 'form'}
                       />
                     </div>
@@ -318,7 +318,7 @@ const Contact = () => {
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/30 focus:bg-black/60 transition-all"
-                        placeholder="john@example.com"
+                        placeholder="Enter your email address"
                         disabled={step !== 'form'}
                       />
                     </div>
@@ -329,7 +329,7 @@ const Contact = () => {
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                         className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/30 focus:bg-black/60 transition-all min-h-[120px]"
-                        placeholder="Tell me about your project..."
+                        placeholder="Enter your message here..."
                         disabled={step !== 'form'}
                       />
                     </div>
