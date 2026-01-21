@@ -8,6 +8,7 @@ const Footer = () => {
     {
       title: "Navigation", links: [
         { name: "About", href: "/#about" },
+        { name: "Services", href: "/services" },
         { name: "Work", href: "/#projects" },
         { name: "Testimonials", href: "/#testimonials" },
         { name: "Certificates", href: "/#certificates" },
@@ -24,7 +25,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-[#050505] border-t border-white/5 pt-20 pb-32 md:pb-10 relative overflow-hidden">
+    <footer className="bg-[#050505] border-t border-white/5 pt-20 pb-10 relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-blue-900/5 blur-[120px] pointer-events-none rounded-full" />
 

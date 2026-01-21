@@ -1,7 +1,7 @@
 import { ReactNode, useEffect } from "react";
 import Experience3D from "./Experience3D";
 import Navbar from "./Navbar";
-import MobileDock from "./MobileDock";
+
 
 import Lenis from "@studio-freight/lenis";
 import { useLocation } from "react-router-dom";
@@ -55,7 +55,7 @@ const GlobalLayout = ({ children }: GlobalLayoutProps) => {
             {!isAdminRoute && (
                 <>
                     <Navbar />
-                    <MobileDock />
+
                 </>
             )}
 

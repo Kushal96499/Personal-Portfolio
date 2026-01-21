@@ -71,9 +71,9 @@ const Hero = () => {
                 className="h-12 px-6 text-base md:h-14 md:px-10 md:text-lg font-medium text-black bg-white rounded-full hover:bg-white/90 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] hover:scale-105"
                 asChild
               >
-                <a href="#projects">
-                  View Work
-                </a>
+                <Link to="/services">
+                  Hire Me
+                </Link>
               </Button>
 
               <Button
@@ -82,11 +82,11 @@ const Hero = () => {
                 className="h-12 px-6 text-base md:h-14 md:px-10 md:text-lg font-medium text-white/60 hover:text-white hover:bg-white/5 border border-white/10 rounded-full transition-all duration-300 backdrop-blur-md"
                 asChild
               >
-                <Link to="/easter-eggs">
+                <a href="#projects">
                   <span className="flex items-center gap-2">
-                    Secret Lab <ArrowRight size={18} className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                    View Work <ArrowRight size={18} className="w-4 h-4 md:w-[18px] md:h-[18px]" />
                   </span>
-                </Link>
+                </a>
               </Button>
             </motion.div>
 

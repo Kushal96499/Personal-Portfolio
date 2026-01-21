@@ -1,7 +1,22 @@
 import { Drawer } from "vaul";
 import { Link } from "react-router-dom";
-import { Wrench, Egg, FileText, BookOpen, Github, Linkedin, Mail, MessageSquare, Award } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+    Briefcase,
+    Home,
+    Layers,
+    Mail,
+    User,
+    Wrench,
+    FileText,
+    MessageSquare,
+    BookOpen,
+    Award,
+    Github,
+    Linkedin,
+    ChevronRight,
+    ArrowRight
+} from "lucide-react";
+import { Button } from "./ui/button";
 
 interface NavDrawerProps {
     open: boolean;
@@ -9,13 +24,17 @@ interface NavDrawerProps {
 }
 
 const NavDrawer = ({ open, onOpenChange }: NavDrawerProps) => {
-    const items = [
-        { icon: MessageSquare, label: "Testimonials", path: "/#testimonials", color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20" },
-        { icon: Award, label: "Certificates", path: "/#certificates", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20" },
-        { icon: FileText, label: "Resume", path: "/#resume", color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20" },
-        { icon: BookOpen, label: "Blog", path: "/blog", color: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/20" },
-        { icon: Egg, label: "Secret", path: "/easter-eggs", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20" },
-        { icon: Wrench, label: "Tools", path: "/tools", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
+    const menuItems = [
+        { icon: Home, label: "Home", path: "/" },
+        { icon: Layers, label: "Services", path: "/services" },
+        { icon: Briefcase, label: "Work", path: "/#projects" },
+        { icon: Wrench, label: "Tools", path: "/tools" },
+        { icon: User, label: "About", path: "/#about" },
+        { icon: BookOpen, label: "Blog", path: "/blog" },
+        { icon: MessageSquare, label: "Testimonials", path: "/#testimonials" },
+        { icon: FileText, label: "Resume", path: "/#resume" },
+        { icon: Award, label: "Certificates", path: "/#certificates" },
+        { icon: Mail, label: "Contact", path: "/#contact" },
     ];
 
     const socials = [
@@ -27,55 +46,68 @@ const NavDrawer = ({ open, onOpenChange }: NavDrawerProps) => {
     return (
         <Drawer.Root open={open} onOpenChange={onOpenChange}>
             <Drawer.Portal>
-                <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
-                <Drawer.Content className="bg-[#050505]/90 backdrop-blur-xl border-t border-white/10 flex flex-col rounded-t-[20px] h-[75vh] mt-24 fixed bottom-0 left-0 right-0 z-50 outline-none shadow-[0_-10px_40px_-15px_rgba(255,255,255,0.1)]">
-                    <div className="p-6 flex-1 overflow-y-auto">
-                        <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/20 mb-8" />
+                <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50" />
+                <Drawer.Content className="bg-[#0a0a0a] border-t border-white/10 flex flex-col rounded-t-[20px] h-[85vh] fixed bottom-0 left-0 right-0 z-50 outline-none shadow-2xl">
 
-                        <div className="max-w-md mx-auto space-y-8">
-                            <div className="text-center">
-                                <Drawer.Title className="font-bold text-2xl mb-2 text-white">
-                                    Command Center
-                                </Drawer.Title>
-                                <p className="text-white/50 font-light">
-                                    Quick access to all sectors.
-                                </p>
+                    {/* Handle */}
+                    <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/20 mt-4 mb-2" />
+
+                    <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+
+                        {/* Header / CTA */}
+                        <div className="mb-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-2xl font-bold text-white">Menu</h2>
+                                <Link to="/" onClick={() => onOpenChange(false)} className="text-xl font-bold text-white/50">
+                                    KK<span className="text-blue-500">.</span>
+                                </Link>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                {items.map((item) => (
-                                    <Link
-                                        key={item.label}
-                                        to={item.path}
-                                        onClick={() => onOpenChange(false)}
-                                        className={cn(
-                                            "flex flex-col items-center justify-center p-6 rounded-3xl border transition-all duration-300 active:scale-95 group",
-                                            item.border,
-                                            item.bg,
-                                            "hover:bg-opacity-20"
-                                        )}
+                            <Link to="/services" onClick={() => onOpenChange(false)}>
+                                <Button className="w-full h-14 text-base font-bold bg-white text-black hover:bg-white/90 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-white/5 active:scale-[0.98] transition-all">
+                                    Hire Me <ArrowRight size={18} />
+                                </Button>
+                            </Link>
+                        </div>
+
+                        {/* Menu List */}
+                        <div className="space-y-1 mb-8">
+                            {menuItems.map((item) => (
+                                <Link
+                                    key={item.label}
+                                    to={item.path}
+                                    onClick={() => onOpenChange(false)}
+                                    className="flex items-center justify-between p-4 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all group active:scale-98"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                                            <item.icon size={16} className="text-white/60 group-hover:text-white transition-colors" />
+                                        </div>
+                                        <span className="font-medium text-lg">{item.label}</span>
+                                    </div>
+                                    <ChevronRight size={16} className="text-white/20 group-hover:text-white/60 transition-colors" />
+                                </Link>
+                            ))}
+                        </div>
+
+                        {/* Socials */}
+                        <div className="pt-6 border-t border-white/10">
+                            <div className="flex justify-center gap-6">
+                                {socials.map((social) => (
+                                    <a
+                                        key={social.label}
+                                        href={social.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-white/40 hover:text-white transition-colors p-3 hover:bg-white/5 rounded-full bg-white/5 border border-white/5"
                                     >
-                                        <item.icon className={cn("w-8 h-8 mb-3 transition-transform group-hover:scale-110 duration-300", item.color)} strokeWidth={1.5} />
-                                        <span className="text-sm font-medium text-white/80 group-hover:text-white transition-colors">{item.label}</span>
-                                    </Link>
+                                        <social.icon size={20} />
+                                    </a>
                                 ))}
                             </div>
-
-                            <div className="pt-4 border-t border-white/10">
-                                <div className="flex justify-center gap-6">
-                                    {socials.map((social) => (
-                                        <a
-                                            key={social.label}
-                                            href={social.href}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-white/40 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full"
-                                        >
-                                            <social.icon size={24} strokeWidth={1.5} />
-                                        </a>
-                                    ))}
-                                </div>
-                            </div>
+                            <p className="text-center text-white/20 text-xs mt-6">
+                                © {new Date().getFullYear()} Kushal Kumawat
+                            </p>
                         </div>
                     </div>
                 </Drawer.Content>
