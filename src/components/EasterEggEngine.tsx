@@ -231,6 +231,8 @@ const EasterEggEngine = () => {
     // 1. Keyword Trigger - GLOBAL
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Add null check for e.key
+            if (!e.key) return;
             const char = e.key.toLowerCase();
             if (char.length !== 1) return;
 

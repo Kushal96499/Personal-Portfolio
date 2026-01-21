@@ -5,12 +5,13 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Missing Supabase environment variables. Please check your .env file.');
+    console.warn('Missing Supabase environment variables. Using placeholder values.');
 }
 
+// Use placeholder values if env vars are missing to prevent app crash
 export const supabase = createClient<Database>(
-    supabaseUrl || '',
-    supabaseAnonKey || ''
+    supabaseUrl || 'https://placeholder.supabase.co',
+    supabaseAnonKey || 'placeholder-anon-key'
 );
 
 // Storage bucket name

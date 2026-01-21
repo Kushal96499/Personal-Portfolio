@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy, useState, useEffect } from "react";
 import { AnimatePresence, MotionConfig } from "framer-motion";
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import { NotFoundPage } from "./pages/NotFoundPage";
 import SecurityCheck from "./components/SecurityCheck";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
@@ -29,6 +29,8 @@ const BrandingSettings = lazy(() => import("./pages/admin/BrandingSettings"));
 const ResumeSettings = lazy(() => import("./pages/admin/ResumeSettings"));
 const AboutSettings = lazy(() => import("./pages/admin/AboutSettings"));
 const EasterEggsPublic = lazy(() => import("./pages/EasterEggsPublic"));
+const ServicesPage = lazy(() => import("./pages/Services"));
+const ServiceAvailabilityAdmin = lazy(() => import("./components/ServiceAvailabilityAdmin"));
 
 // Tools Pages
 const ToolsOverview = lazy(() => import("./pages/Tools/ToolsOverview"));
@@ -110,12 +112,11 @@ import { BrandingProvider } from "./contexts/BrandingContext";
 import GlobalLayout from "./components/GlobalLayout";
 import EasterEggEngine from "./components/EasterEggEngine";
 import ScrollToHashElement from "./components/ScrollToHashElement";
-import CursorTrail from "./components/CursorTrail";
-import { SpotlightEffect } from "./components/ui/SpotlightEffect";
+// CursorTrail and SpotlightEffect removed for better performance
 
 // Supabase function URL
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const VERIFY_TURNSTILE_URL = `${SUPABASE_URL.replace('.supabase.co', '')}.functions.supabase.co/verify-turnstile`;
+const VERIFY_TURNSTILE_URL = SUPABASE_URL ? `${SUPABASE_URL.replace('.supabase.co', '')}.functions.supabase.co/verify-turnstile` : '';
 
 
 const App = () => {
@@ -147,17 +148,18 @@ const App = () => {
                 <TooltipProvider>
                   <MotionConfig reducedMotion="user">
                     <BrowserRouter>
+                      {/* CursorTrail and SpotlightEffect removed for performance */}
                       <GlobalLayout>
                         <EasterEggEngine />
                         <ScrollToHashElement />
-                        <CursorTrail />
-                        <SpotlightEffect />
                         <Suspense fallback={<LoadingSpinner />}>
                           <Routes>
                             <Route path="/" element={<Index />} />
                             <Route path="/blog" element={<BlogPage />} />
                             <Route path="/blog/:slug" element={<BlogDetail />} />
                             <Route path="/easter-eggs" element={<EasterEggsPublic />} />
+                            <Route path="/services" element={<ServicesPage />} />
+                            <Route path="/hire" element={<ServicesPage />} />
 
                             {/* Tools Routes */}
                             <Route path="/tools" element={<ToolsOverview />} />
@@ -238,6 +240,8 @@ const App = () => {
                             <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
                               <Route index element={<Navigate to="/admin/dashboard" replace />} />
                               <Route path="dashboard" element={<Dashboard />} />
+                              <Route path="about" element={<AboutSettings />} />
+                              <Route path="service-availability" element={<ServiceAvailabilityAdmin />} />
                               <Route path="projects" element={<Projects />} />
                               <Route path="testimonials" element={<Testimonials />} />
                               <Route path="messages" element={<Messages />} />
@@ -245,7 +249,6 @@ const App = () => {
                               <Route path="blogs" element={<Blogs />} />
                               <Route path="skills" element={<Skills />} />
                               <Route path="resume" element={<ResumeSettings />} />
-                              <Route path="about" element={<AboutSettings />} />
                               <Route path="easter-eggs" element={<EasterEggs />} />
                               <Route path="logs" element={<Logs />} />
                               <Route path="section-controls" element={<SectionControls />} />
@@ -253,7 +256,7 @@ const App = () => {
                             </Route>
 
                             {/* Catch-all */}
-                            <Route path="*" element={<NotFound />} />
+                            <Route path="*" element={<NotFoundPage />} />
                           </Routes>
                         </Suspense>
                       </GlobalLayout>

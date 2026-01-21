@@ -1,17 +1,11 @@
+# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
-Allow: /#about
-Allow: /#skills
-Allow: /#projects
-Allow: /#blog
-Allow: /#testimonials
-Allow: /#contact
 
-# No AI crawling ban (optional)
-User-agent: GPTBot
-Disallow:
+# Disallow admin and private routes
+Disallow: /admin
+Disallow: /api
+Disallow: /*?*utm_
 
-User-agent: Google-Extended
-Disallow:
-
+# Sitemap
 Sitemap: https://kushalkumawat.in/sitemap.xml

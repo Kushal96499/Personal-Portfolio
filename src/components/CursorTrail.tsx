@@ -49,7 +49,7 @@ const CursorTrail = () => {
     <>
       {/* Main cursor glow */}
       <motion.div
-        className="fixed pointer-events-none z-[99999] w-8 h-8 rounded-full bg-white/30 blur-xl"
+        className="fixed pointer-events-none z-[999999] w-8 h-8 rounded-full bg-white/30 blur-xl mix-blend-difference"
         style={{
           x: mainX,
           y: mainY,
@@ -60,7 +60,7 @@ const CursorTrail = () => {
 
       {/* Outer cursor ring */}
       <motion.div
-        className="fixed pointer-events-none z-[99999] w-6 h-6 rounded-full border-2 border-white/50"
+        className="fixed pointer-events-none z-[999999] w-6 h-6 rounded-full border-2 border-white/50 mix-blend-difference"
         style={{
           x: outerX,
           y: outerY,
@@ -71,7 +71,7 @@ const CursorTrail = () => {
 
       {/* Inner cursor dot */}
       <motion.div
-        className="fixed pointer-events-none z-[99999] w-2 h-2 rounded-full bg-white"
+        className="fixed pointer-events-none z-[999999] w-2 h-2 rounded-full bg-white mix-blend-difference"
         style={{
           x: dotX,
           y: dotY,

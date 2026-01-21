@@ -15,7 +15,8 @@ import {
     Activity,
     Settings,
     FileUser,
-    Info
+    Info,
+    Briefcase
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -66,6 +67,7 @@ const AdminLayout = () => {
     const menuItems = [
         { icon: LayoutDashboard, label: 'Dashboard', to: '/admin' },
         { icon: Info, label: 'About Settings', to: '/admin/about' },
+        { icon: Briefcase, label: 'Service Availability', to: '/admin/service-availability' },
         { icon: FolderKanban, label: 'Projects', to: '/admin/projects' },
         { icon: MessageSquare, label: 'Testimonials', to: '/admin/testimonials' },
         { icon: FileText, label: 'Contact Messages', to: '/admin/messages' },

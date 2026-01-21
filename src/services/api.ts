@@ -621,9 +621,10 @@ export const api = {
         return data || [];
     },
 
-    submitContactMessage: async (message: Omit<ContactMessageInsert, 'id' | 'created_at'>): Promise<ContactMessage> => {
+    submitContactMessage: async (message: Omit<ContactMessageInsert, 'id' | 'created_at'>): Promise<void> => {
         // Set default values for optional fields (no status field in DB)
-        const { data, error } = await supabase
+        // Don't use .select() - anonymous users can INSERT but not SELECT
+        const { error } = await supabase
             .from('contact_messages')
             .insert([{
                 name: message.name,
@@ -631,12 +632,9 @@ export const api = {
                 message: message.message,
                 read: false,
                 resolved: false
-            }])
-            .select()
-            .single();
+            }]);
 
         if (error) throw error;
-        return data;
     },
 
     markMessageAsRead: async (id: string, read: boolean): Promise<ContactMessage> => {
@@ -672,7 +670,19 @@ export const api = {
         if (error) throw error;
     },
 
-    sendContactEmail: async (data: { name: string; email: string; message: string }): Promise<void> => {
+    sendContactEmail: async (data: {
+        name: string;
+        email: string;
+        message: string;
+        whatsapp?: string;
+        plan?: string;
+        projectType?: string;
+        attachment?: {
+            filename: string;
+            content: string;
+            encoding: string; // 'base64'
+        };
+    }): Promise<void> => {
         const { data: responseData, error } = await supabase.functions.invoke('send-contact-mail', {
             body: data
         });

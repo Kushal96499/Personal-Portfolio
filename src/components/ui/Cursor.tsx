@@ -37,7 +37,7 @@ const Cursor = () => {
 
     return (
         <motion.div
-            className="fixed top-0 left-0 w-5 h-5 bg-white rounded-full pointer-events-none z-[100] mix-blend-difference"
+            className="fixed top-0 left-0 w-5 h-5 bg-white rounded-full pointer-events-none z-[999999] mix-blend-difference"
             style={{
                 x: cursorXSpring,
                 y: cursorYSpring,

@@ -31,28 +31,17 @@
 
 @layer base {
 
-  /* Global Custom Cursor Logic - RESTORED */
+  /* Global styling - Default cursor enabled for better UX */
   body {
-    cursor: none;
     @apply bg-background text-foreground font-sans antialiased relative overflow-x-hidden;
     background-color: #050505;
     min-height: 100vh;
   }
 
-  /* Only show default cursor for Admin Panel */
+  /* Admin Panel keeps default cursor */
   [data-admin-panel],
   [data-admin-panel] * {
     cursor: auto !important;
-  }
-
-  /* Force pointer cursor for interactive elements but keep it hidden if custom cursor handles it */
-  a,
-  button,
-  [role="button"],
-  input,
-  textarea,
-  select {
-    cursor: none !important;
   }
 
   h1,

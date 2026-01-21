@@ -1,20 +1,26 @@
--- Diagnostic script to check active RLS policies on contact_messages
+-- Run this in Supabase SQL Editor to see existing policies
 
-SELECT
-    schemaname,
-    tablename,
-    policyname,
-    permissive,
-    roles,
-    cmd,
-    qual,
-    with_check
-FROM
-    pg_policies
-WHERE
-    tablename = 'contact_messages';
+-- Check resume_data policies
+SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual, with_check
+FROM pg_policies 
+WHERE tablename = 'resume_data';
 
--- Also check grants
-SELECT grantee, privilege_type
-FROM information_schema.role_table_grants
-WHERE table_name = 'contact_messages';
+-- Check activity_logs policies  
+SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual, with_check
+FROM pg_policies 
+WHERE tablename = 'activity_logs';
+
+-- Check admin_logs policies
+SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual, with_check
+FROM pg_policies 
+WHERE tablename = 'admin_logs';
+
+-- Check branding_settings policies
+SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual, with_check
+FROM pg_policies 
+WHERE tablename = 'branding_settings';
+
+-- Check site_controls policies
+SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual, with_check
+FROM pg_policies 
+WHERE tablename = 'site_controls';
