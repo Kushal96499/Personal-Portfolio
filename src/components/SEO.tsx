@@ -22,9 +22,9 @@ export const SEO = ({
 
     const pageTitle = title
         ? `${title} | Kushal Kumawat`
-        : 'Kushal Kumawat - Full-Stack Developer | Modern Web Solutions';
+        : 'Kushal Kumawat | Web Developer & Cybersecurity Enthusiast';
 
-    const defaultKeywords = 'Kushal Kumawat, Full-Stack Developer, Web Development, React, Next.js, Tailwind CSS, Portfolio Website, Freelance Web Developer';
+    const defaultKeywords = 'Kushal Kumawat, Web Developer, Freelance Web Developer, Cybersecurity Enthusiast, Secure Web Development, React, Next.js, Tailwind CSS, Portfolio Website';
 
     return (
         <Helmet>
