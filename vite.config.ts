@@ -30,6 +30,7 @@ export default defineConfig(() => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    dedupe: ['react', 'react-dom'],
   },
   optimizeDeps: {
     esbuildOptions: {
@@ -44,17 +45,31 @@ export default defineConfig(() => ({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('three') || id.includes('@react-three')) {
-              return 'core-vendor';
+            // Keep React core in main bundle for stability
+            if (id.includes('react') || id.includes('react-dom')) {
+              return null; 
             }
-            if (id.includes('tesseract.js') || id.includes('fabric') || id.includes('xlsx')) {
+            // Split heavy 3D engine
+            if (id.includes('three') || id.includes('@react-three')) {
+              return 'three-vendor';
+            }
+            // Split heavy file processing tools
+            if (
+              id.includes('tesseract.js') || 
+              id.includes('pdfjs-dist') || 
+              id.includes('jspdf') || 
+              id.includes('pdf-lib') ||
+              id.includes('xlsx') ||
+              id.includes('fabric') ||
+              id.includes('jszip') ||
+              id.includes('docx') ||
+              id.includes('mammoth')
+            ) {
               return 'tools-vendor';
             }
-            if (id.includes('framer-motion') || id.includes('gsap')) {
+            // Group heavy animation libs
+            if (id.includes('gsap') || id.includes('canvas-confetti')) {
               return 'animation-vendor';
-            }
-            if (id.includes('lucide-react')) {
-              return 'icons';
             }
             return 'vendor';
           }
