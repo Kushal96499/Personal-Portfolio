@@ -22,6 +22,10 @@ export default defineConfig(() => ({
       protocolImports: true,
     }),
   ],
+  define: {
+    'process.env': {},
+    'process.platform': JSON.stringify('browser'),
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
