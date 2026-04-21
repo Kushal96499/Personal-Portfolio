@@ -43,9 +43,6 @@ export default defineConfig(() => ({
             if (id.includes('three') || id.includes('@react-three')) {
               return 'three-vendor';
             }
-            if (id.includes('pdfjs-dist') || id.includes('jspdf') || id.includes('pdf-lib') || id.includes('pdfmake') || id.includes('pako')) {
-              return 'pdf-vendor';
-            }
             if (id.includes('tesseract.js') || id.includes('fabric') || id.includes('xlsx')) {
               return 'tools-vendor';
             }
