@@ -8,9 +8,13 @@ if (typeof window !== 'undefined') {
   window.Buffer = Buffer;
   window.pako = pako;
   
+  // Ensure process exists with necessary env vars
   if (!window.process) {
     window.process = {
-      env: { NODE_ENV: import.meta.env.MODE },
+      env: { 
+        NODE_ENV: import.meta.env.MODE,
+        BROWSER: true
+      },
       browser: true,
       platform: 'browser',
       version: '',
@@ -23,6 +27,9 @@ if (typeof window !== 'undefined') {
       stderr: { write: () => {} },
       stdout: { write: () => {} },
     } as any;
+  } else {
+    // Merge env if process already exists
+    window.process.env = { ...window.process.env, NODE_ENV: import.meta.env.MODE };
   }
 }
 
