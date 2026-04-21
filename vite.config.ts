@@ -47,6 +47,16 @@ export default defineConfig(() => ({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
+            // CRITICAL: Keep core polyfills in the entry bundle to prevent TDZ errors.
+            // pako and buffer MUST be initialized before engine-vendor loads.
+            if (
+              id.includes('/pako/') || 
+              id.includes('/buffer/') ||
+              id.includes('/process/')
+            ) {
+              return undefined; // Stays in the entry chunk
+            }
+
             // Priority 1: UI & Animations (Moderate size)
             if (
               id.includes('@radix-ui') || 
