@@ -23,7 +23,7 @@ export default defineConfig(() => ({
     }),
   ],
   define: {
-    'process.env': {},
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
     'process.platform': JSON.stringify('browser'),
     'global': 'window',
   },
@@ -31,36 +31,41 @@ export default defineConfig(() => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    dedupe: ['react', 'react-dom'],
+    dedupe: ['react', 'react-dom', 'three', '@react-three/fiber', '@react-three/drei'],
   },
   optimizeDeps: {
     esbuildOptions: {
       target: "esnext",
     },
-    include: ['react-turnstile'],
+    include: ['react-turnstile', 'buffer', 'pako'],
   },
   build: {
     target: "esnext",
     sourcemap: false,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // Keep React core and fundamental utils in the main bundle for stability
+            // Priority 1: Core React and Polyfills
             if (id.includes('react') || id.includes('react-dom') || id.includes('buffer') || id.includes('pako')) {
-              return null; 
+              return 'core-vendor'; 
             }
-            // Group heavy engine & file processing into one stable chunk
+            // Priority 2: Graphics Engine
+            if (id.includes('three') || id.includes('@react-three')) {
+              return 'graphics-vendor';
+            }
+            // Priority 3: Heavy processing engines
             if (
-              id.includes('three') || 
-              id.includes('@react-three') ||
               id.includes('pdfjs-dist') || 
               id.includes('pdf-lib') ||
-              id.includes('tesseract.js')
+              id.includes('tesseract.js') ||
+              id.includes('xlsx') ||
+              id.includes('jszip')
             ) {
               return 'engine-vendor';
             }
-            // Everything else in a generic vendor chunk
+            // All other vendors
             return 'vendor';
           }
         },

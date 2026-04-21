@@ -38,11 +38,11 @@ const BusinessDashboard = () => {
                     path: '/tools/business/gst-calculator'
                 },
                 {
-                    id: 'expense-tracker',
-                    name: 'Expense Tracker',
-                    description: 'Track business expenses locally.',
+                    id: 'financial-planner',
+                    name: 'Financial Planner',
+                    description: 'Track business records locally.',
                     icon: FileText,
-                    path: '/tools/business/expense-tracker'
+                    path: '/tools/business/financial-planner'
                 }
             ]
         }

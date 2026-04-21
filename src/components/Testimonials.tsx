@@ -147,6 +147,8 @@ const Testimonials = () => {
                         className="w-24 h-24 rounded-full border-2 border-white/10 object-cover relative z-10"
                         whileHover={{ scale: 1.05 }}
                         transition={{ duration: 0.3 }}
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="w-24 h-24 rounded-full border-2 border-white/10 bg-white/5 flex items-center justify-center relative z-10">

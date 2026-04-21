@@ -45,16 +45,6 @@ const Hero = () => {
                 </motion.h2>
               </div>
             </motion.div>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-              className="text-xl md:text-2xl text-white/50 mb-10 font-light tracking-wide max-w-lg"
-            >
-              Expert in architecting secure, full-stack ecosystems. I specialize in bridging the gap between high-performance development and robust cybersecurity.
-            </motion.p>
-
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

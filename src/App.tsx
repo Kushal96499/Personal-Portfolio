@@ -95,7 +95,7 @@ const InvoiceGenerator = lazy(() => import("./pages/Tools/Business/InvoiceGenera
 const GstInvoiceGenerator = lazy(() => import("./pages/Tools/Business/GstInvoiceGenerator"));
 const EmiCalculator = lazy(() => import("./pages/Tools/Business/EmiCalculator"));
 const GstCalculator = lazy(() => import("./pages/Tools/Business/GstCalculator"));
-const ExpenseTracker = lazy(() => import("./pages/Tools/Business/ExpenseTracker"));
+const FinancialPlanner = lazy(() => import("./pages/Tools/Business/FinancialPlanner"));
 
 const TimeDateTools = lazy(() => import("./pages/Tools/Developer/TimeDateTools"));
 const NetworkPing = lazy(() => import("./pages/Tools/Cyber/NetworkPing"));
@@ -147,7 +147,7 @@ const App = () => {
               <BrandingProvider>
                 <TooltipProvider>
                   <MotionConfig reducedMotion="user">
-                    <BrowserRouter>
+                    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                       {/* CursorTrail and SpotlightEffect removed for performance */}
                       <GlobalLayout>
                         <EasterEggEngine />
@@ -228,9 +228,9 @@ const App = () => {
                             <Route path="/tools/business" element={<BusinessDashboard />} />
                             <Route path="/tools/business/invoice-generator" element={<InvoiceGenerator />} />
                             <Route path="/tools/business/gst-invoice-generator" element={<GstInvoiceGenerator />} />
-                            <Route path="/tools/business/emi-calculator" element={<EmiCalculator />} />
+                            <Route path="/tools/business/financial-planner" element={<FinancialPlanner />} />
                             <Route path="/tools/business/gst-calculator" element={<GstCalculator />} />
-                            <Route path="/tools/business/expense-tracker" element={<ExpenseTracker />} />
+                            <Route path="/tools/business/emi-calculator" element={<EmiCalculator />} />
 
                             <Route path="/tools/time-date" element={<TimeDateTools />} />
                             <Route path="/tools/ping" element={<NetworkPing />} />

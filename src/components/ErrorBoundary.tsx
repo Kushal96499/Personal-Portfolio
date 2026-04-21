@@ -62,14 +62,17 @@ class ErrorBoundary extends Component<Props, State> {
                                     <AlertTriangle className="w-6 h-6 text-red-500" />
                                 </div>
                                 <CardTitle className="text-2xl text-red-500">
-                                    Oops! Something went wrong
+                                    {this.state.error?.message.includes('BLOCKED_BY_CLIENT') 
+                                        ? 'Extension Conflict Detected' 
+                                        : 'Oops! Something went wrong'}
                                 </CardTitle>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <p className="text-muted-foreground">
-                                We encountered an unexpected error. Don't worry, your data is safe.
-                                You can try refreshing the page or returning to the home page.
+                                {this.state.error?.message.includes('BLOCKED_BY_CLIENT')
+                                    ? 'It looks like an ad-blocker or security extension is preventing some core features from loading. Please try disabling your extensions for this site.'
+                                    : "We encountered an unexpected error. Don't worry, your data is safe. You can try refreshing the page or returning to the home page."}
                             </p>
 
                             {this.state.error && (

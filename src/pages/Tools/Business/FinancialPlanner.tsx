@@ -27,7 +27,7 @@ const DEFAULT_CATEGORIES = [
 
 const PAYMENT_METHODS = ["UPI", "Credit Card", "Debit Card", "Net Banking", "Cash", "Cheque"];
 
-const ExpenseTracker = () => {
+const FinancialPlanner = () => {
     // --- State ---
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
@@ -115,7 +115,7 @@ const ExpenseTracker = () => {
     };
 
     const clearAll = () => {
-        if (confirm("Permanently delete ALL expenses?")) {
+        if (confirm("Permanently delete ALL records?")) {
             setExpenses([]);
             toast.warning("All data cleared.");
         }
@@ -128,7 +128,7 @@ const ExpenseTracker = () => {
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "business_expenses.csv");
+        link.setAttribute("download", "business_records.csv");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -158,12 +158,12 @@ const ExpenseTracker = () => {
 
     return (
         <ToolPageLayout
-            title="Business Expense Tracker"
-            description="Track finances with custom categories and insights."
+            title="Business Financial Planner"
+            description="Manage finances with custom categories and insights."
             about={
                 <div>
                     <p>
-                        A lightweight expense manager designed for freelancers and small businesses. Log your daily transactions, categorize expenses, and visualize spending habits without needing complex accounting software.
+                        A lightweight financial manager designed for freelancers and small businesses. Log your daily transactions, categorize expenses, and visualize spending habits without needing complex accounting software.
                     </p>
                     <p className="mt-2">
                         Your private financial data remains stored securely in your browser's local storage and is never uploaded to the cloud.
@@ -175,7 +175,7 @@ const ExpenseTracker = () => {
                 "Create custom categories (e.g., 'Travel', 'Software') on the fly.",
                 "View a summary dashboard of total spend and top expenses.",
                 "Filter history by category or sort by date/amount.",
-                "Export your entire expense log to CSV for backup."
+                "Export your entire record log to CSV for backup."
             ]}
             disclaimer="All data processing happens locally in your browser. No financial data is sent to our servers. Clearing your browser cache will remove your saved data."
             parentPath="/tools/business"
@@ -313,7 +313,7 @@ const ExpenseTracker = () => {
                             <AnimatePresence mode="popLayout">
                                 {filteredAndSortedExpenses.length === 0 ? (
                                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20 border border-dashed border-white/10 rounded-2xl">
-                                        <p className="text-white/30">No expenses found.</p>
+                                        <p className="text-white/30">No records found.</p>
                                     </motion.div>
                                 ) : (
                                     filteredAndSortedExpenses.map((expense) => (
@@ -371,4 +371,4 @@ const SummaryCard = ({ title, value, subValue, icon: Icon, color, bg }: any) => 
     </Card>
 );
 
-export default ExpenseTracker;
+export default FinancialPlanner;
