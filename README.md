@@ -1,9 +1,5 @@
 # 🛡️ Kushal Kumawat | Elite Cyber-Engineering Portfolio
 
-<div align="center">
-  <img src="/public/og-image.png" alt="Portfolio Header" width="900px" style="border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);"/>
-  <br/><br/>
-  
   [![Live Deployment](https://img.shields.io/badge/Live_Deployment-kushalkumawat.in-blueviolet?style=for-the-badge&logo=vercel)](https://kushalkumawat.in)
   [![Build Status](https://img.shields.io/badge/Build-Optimized-success?style=for-the-badge&logo=vite)](https://kushalkumawat.in)
   [![Security Tier](https://img.shields.io/badge/Security-A+_Rated-green?style=for-the-badge&logo=cloudflare)](https://kushalkumawat.in)
@@ -11,7 +7,7 @@
 
   <h3>"Bridging the Gap Between Defensive Security and Advanced Web Engineering."</h3>
   
-  [**Portfolio**](https://kushalkumawat.in) • [**Source Code**](https://github.com/Kushal96499) • [**LinkedIn**](https://linkedin.com/in/kushalkumawat) • [**Twitter**](https://twitter.com/kushalkumawat)
+  [**Portfolio**](https://kushalkumawat.in) • [**Source Code**](https://github.com/Kushal96499) • [**LinkedIn**](https://linkedin.com/in/kushal-ku) 
 </div>
 
 ---
@@ -139,11 +135,11 @@ VITE_TURNSTILE_SITE_KEY=your_cloudflare_turnstile_key
     <tr>
       <td width="50%">
         <p align="center"><b>🖥️ Immersive Dashboard</b></p>
-        <img src="https://via.placeholder.com/600x350/0d0d0d/ffffff?text=Dashboard+Interface" alt="Dashboard" style="border-radius: 8px;"/>
+        <img src="https://github.com/user-attachments/assets/69512766-e71e-4284-816b-3747eb86bb6a" alt="Dashboard" style="border-radius: 8px;"/>
       </td>
       <td width="50%">
         <p align="center"><b>🛡️ Cyber Security Suite</b></p>
-        <img src="https://via.placeholder.com/600x350/0d0d0d/ffffff?text=Cyber+Tools+Interface" alt="Cyber Tools" style="border-radius: 8px;"/>
+        <img src="https://github.com/user-attachments/assets/77d4e9aa-84ed-4e1e-9cca-80d02baac622" alt="Cyber Tools" style="border-radius: 8px;"/>
       </td>
     </tr>
   </table>
