@@ -42,72 +42,38 @@ export default defineConfig(() => ({
   build: {
     target: "esnext",
     sourcemap: false,
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 3500,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // CRITICAL: Keep core polyfills in the entry bundle to prevent TDZ errors.
-            // pako and buffer MUST be initialized before engine-vendor loads.
-            if (
-              id.includes('/pako/') || 
-              id.includes('/buffer/') ||
-              id.includes('/process/')
-            ) {
-              return undefined; // Stays in the entry chunk
-            }
+            // ONLY split out heavy libraries that are behind lazy-loaded routes
+            // and do NOT import React at the top level of their bundle.
+            // Everything else stays in the default chunk to avoid TDZ/init-order crashes.
 
-            // Priority 1: UI & Animations (Moderate size)
-            if (
-              id.includes('@radix-ui') || 
-              id.includes('lucide-react') || 
-              id.includes('framer-motion') || 
-              id.includes('gsap') ||
-              id.includes('embla-carousel') ||
-              id.includes('recharts') ||
-              id.includes('react-hook-form') ||
-              id.includes('vaul')
-            ) {
-              return 'ui-vendor';
-            }
-
-            // Priority 2: Database & Utilities
-            if (
-              id.includes('@supabase') || 
-              id.includes('@tanstack') || 
-              id.includes('zod') ||
-              id.includes('date-fns') ||
-              id.includes('crypto-js')
-            ) {
-              return 'db-vendor';
-            }
-
-            // Priority 3: Heavy Graphics Engine
-            if (id.includes('three') || id.includes('@react-three')) {
+            // Three.js + R3F (only used in 3D components, no top-level React dependency)
+            if (id.includes('three') || id.includes('@react-three') || id.includes('maath')) {
               return 'graphics-vendor';
             }
 
-            // Priority 4: Heavy Document Engines (PDF, OCR)
+            // Heavy document processing engines (only used in /tools/pdf/* routes)
             if (
               id.includes('pdfjs-dist') || 
               id.includes('pdf-lib') ||
               id.includes('tesseract.js') ||
               id.includes('xlsx') ||
               id.includes('jszip') ||
-              id.includes('fabric') ||
               id.includes('jspdf') ||
               id.includes('pdfmake') ||
-              id.includes('pptxgenjs') ||
               id.includes('mammoth') ||
-              id.includes('docx')
+              id.includes('docx') ||
+              id.includes('fabric') ||
+              id.includes('pptxgenjs')
             ) {
               return 'engine-vendor';
             }
-
-            // All other vendors (includes buffer, pako, and small libs)
-            // Keeping these in a stable 'shared-vendor' or default chunk
-            return 'vendor';
           }
+          // Return undefined for everything else → Rollup handles it safely
         },
       },
     },
