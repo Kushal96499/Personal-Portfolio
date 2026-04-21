@@ -46,32 +46,21 @@ export default defineConfig(() => ({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // Keep React core in main bundle for stability
-            if (id.includes('react') || id.includes('react-dom')) {
+            // Keep React core and fundamental utils in the main bundle for stability
+            if (id.includes('react') || id.includes('react-dom') || id.includes('buffer') || id.includes('pako')) {
               return null; 
             }
-            // Split heavy 3D engine
-            if (id.includes('three') || id.includes('@react-three')) {
-              return 'three-vendor';
-            }
-            // Split heavy file processing tools
+            // Group heavy engine & file processing into one stable chunk
             if (
-              id.includes('tesseract.js') || 
+              id.includes('three') || 
+              id.includes('@react-three') ||
               id.includes('pdfjs-dist') || 
-              id.includes('jspdf') || 
               id.includes('pdf-lib') ||
-              id.includes('xlsx') ||
-              id.includes('fabric') ||
-              id.includes('jszip') ||
-              id.includes('docx') ||
-              id.includes('mammoth')
+              id.includes('tesseract.js')
             ) {
-              return 'tools-vendor';
+              return 'engine-vendor';
             }
-            // Group heavy animation libs
-            if (id.includes('gsap') || id.includes('canvas-confetti')) {
-              return 'animation-vendor';
-            }
+            // Everything else in a generic vendor chunk
             return 'vendor';
           }
         },

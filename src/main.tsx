@@ -1,6 +1,8 @@
 import { Buffer } from "buffer";
+import pako from "pako";
 window.Buffer = Buffer;
 window.global = window;
+window.pako = pako;
 
 import { createRoot } from "react-dom/client";
 import { HelmetProvider } from 'react-helmet-async';
