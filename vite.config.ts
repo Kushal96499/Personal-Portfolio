@@ -44,8 +44,8 @@ export default defineConfig(() => ({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            if (id.includes('three') || id.includes('@react-three')) {
-              return 'three-vendor';
+            if (id.includes('react') || id.includes('react-dom') || id.includes('three') || id.includes('@react-three')) {
+              return 'core-vendor';
             }
             if (id.includes('tesseract.js') || id.includes('fabric') || id.includes('xlsx')) {
               return 'tools-vendor';
