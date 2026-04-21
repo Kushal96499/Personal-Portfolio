@@ -1,11 +1,5 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
 
-# Disallow admin and private routes
-Disallow: /admin
-Disallow: /api
-Disallow: /*?*utm_
-
-# Sitemap
+# Sitemaps
 Sitemap: https://kushalkumawat.in/sitemap.xml

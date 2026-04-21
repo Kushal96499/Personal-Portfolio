@@ -85,8 +85,10 @@ const Certifications = () => {
                   {cert.image_url ? (
                     <img
                       src={cert.image_url}
-                      alt={cert.title}
+                      alt={`${cert.title} certificate`}
                       className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 relative z-10 drop-shadow-2xl"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <div className="bg-white/5 p-6 rounded-full relative z-10">

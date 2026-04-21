@@ -35,7 +35,7 @@ const Navbar = () => {
       {/* Mobile Logo - Top Left */}
       {/* Mobile Logo - Top Left */}
       <div className="fixed top-6 left-6 z-50 xl:hidden">
-        <Link to="/" className="relative group">
+        <Link to="/" className="relative group" aria-label="Go to home page">
           <span className="text-xl font-bold tracking-tighter text-white mix-blend-difference">
             KK<span className="text-blue-500">.</span>
           </span>
@@ -47,6 +47,7 @@ const Navbar = () => {
         <button
           className="text-white p-2 bg-white/5 backdrop-blur-lg border border-white/10 rounded-full"
           onClick={() => setIsDrawerOpen(true)}
+          aria-label="Open navigation menu"
         >
           <Menu size={20} />
         </button>

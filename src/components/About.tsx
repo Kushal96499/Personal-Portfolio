@@ -46,8 +46,10 @@ const About = () => {
               {aboutMe?.profile_image_url ? (
                 <img
                   src={aboutMe.profile_image_url}
-                  alt="Profile"
+                  alt="Kushal Kumawat - Profile Picture"
                   className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-500 scale-100 group-hover:scale-105"
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-white/5 text-white/20">
@@ -66,10 +68,12 @@ const About = () => {
           viewport={{ once: true }}
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight drop-shadow-lg text-shadow-premium">
-            {aboutMe?.title || "About Me"}
+            {aboutMe?.title || "Cybersecurity Architect & Full-Stack Strategist"}
           </h2>
           <div className="space-y-6 text-lg md:text-xl text-white/80 leading-relaxed whitespace-pre-wrap font-light">
-            {aboutMe?.description || "Loading..."}
+            {aboutMe?.description || 
+              "With a dual passion for building scalable web architectures and hardening digital defenses, I help organizations navigate the complex landscape of modern cybersecurity. My approach combines deep technical expertise in ethical hacking—including vulnerability scanning and IDS implementation—with a commitment to writing clean, secure, and performant code. I am dedicated to creating digital experiences that are not only visually stunning but also resilient against evolving threats."
+            }
           </div>
 
           {/* Apple-style Metric Blocks */}
@@ -89,6 +93,15 @@ const About = () => {
               </h3>
               <p className="text-sm md:text-base text-white/50 font-medium uppercase tracking-wider">Projects Completed</p>
             </GlassCard>
+          </div>
+
+          {/* Technical Keywords Cloud (Hidden from visual clutter or styled subtley, but great for GEO/SEO) */}
+          <div className="mt-10 flex flex-wrap gap-2 opacity-60">
+            {["Penetration Testing", "Full-Stack Security", "IDS/IPS", "Web Architecture", "Secure Code Audits", "Vulnerability Research"].map(tag => (
+              <span key={tag} className="text-xs md:text-sm font-medium text-white/40 border border-white/10 px-3 py-1 rounded-full uppercase tracking-tighter">
+                {tag}
+              </span>
+            ))}
           </div>
         </motion.div>
       </div>

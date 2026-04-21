@@ -33,21 +33,16 @@ const Hero = () => {
               className="relative mb-8"
             >
               <div className="overflow-hidden">
+                <motion.h1 variants={textVariants} className="text-[3.5rem] sm:text-[5rem] md:text-[6rem] lg:text-[8rem] xl:text-[10rem] leading-[0.9] font-black tracking-tighter">
+                  <span className="text-white mix-blend-difference block text-left">KUSHAL</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white/80 to-white/20 block text-left">KUMAWAT</span>
+                </motion.h1>
+              </div>
+
+              <div className="overflow-hidden mt-4">
                 <motion.h2 variants={textVariants} className="text-sm md:text-base font-medium text-white/60 uppercase tracking-[0.2em] mb-2">
-                  Creative Developer
+                  Building Secure Digital Infrastructures & Advanced Web Experiences
                 </motion.h2>
-              </div>
-
-              <div className="overflow-hidden">
-                <motion.h1 variants={textVariants} className="text-[3.5rem] sm:text-[5rem] md:text-[6rem] lg:text-[8rem] xl:text-[10rem] leading-[0.9] font-black text-white tracking-tighter mix-blend-difference">
-                  KUSHAL
-                </motion.h1>
-              </div>
-
-              <div className="overflow-hidden">
-                <motion.h1 variants={textVariants} className="text-[3.5rem] sm:text-[5rem] md:text-[6rem] lg:text-[8rem] xl:text-[10rem] leading-[0.9] font-black text-transparent bg-clip-text bg-gradient-to-r from-white/80 to-white/20 tracking-tighter">
-                  KUMAWAT
-                </motion.h1>
               </div>
             </motion.div>
 
@@ -57,7 +52,7 @@ const Hero = () => {
               transition={{ delay: 0.6, duration: 0.8 }}
               className="text-xl md:text-2xl text-white/50 mb-10 font-light tracking-wide max-w-lg"
             >
-              Crafting digital experiences with code and gravity-defying design.
+              Expert in architecting secure, full-stack ecosystems. I specialize in bridging the gap between high-performance development and robust cybersecurity.
             </motion.p>
 
             <motion.div
@@ -98,15 +93,16 @@ const Hero = () => {
               className="mt-16 flex items-center gap-6"
             >
               {[
-                { icon: Github, href: "https://github.com/Kushal96499" },
-                { icon: Linkedin, href: "https://www.linkedin.com/in/kushal-ku" },
-                { icon: Mail, href: "mailto:kushalkumawat85598@gmail.com" }
+                { icon: Github, href: "https://github.com/Kushal96499", label: "GitHub Profile" },
+                { icon: Linkedin, href: "https://www.linkedin.com/in/kushal-ku", label: "LinkedIn Profile" },
+                { icon: Mail, href: "mailto:kushalkumawat85598@gmail.com", label: "Email Me" }
               ].map((social, index) => (
                 <a
                   key={index}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={social.label}
                   className="text-white/30 hover:text-white transition-colors duration-300 hover:scale-110 transform"
                 >
                   <social.icon size={24} />

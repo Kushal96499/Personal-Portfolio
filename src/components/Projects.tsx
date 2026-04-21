@@ -85,8 +85,10 @@ const Projects = () => {
                 <div className="relative w-full h-48 overflow-hidden">
                   <img
                     src={project.thumbnail_url}
-                    alt={project.name}
+                    alt={`${project.name} preview`}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#020005] to-transparent opacity-60" />
                 </div>

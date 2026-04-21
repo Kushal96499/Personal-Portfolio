@@ -7,6 +7,7 @@ interface SEOProps {
     ogImage?: string;
     type?: 'website' | 'article';
     pathname?: string;
+    schema?: object | object[];
 }
 
 export const SEO = ({
@@ -15,7 +16,8 @@ export const SEO = ({
     keywords,
     ogImage = '/og-image.png',
     type = 'website',
-    pathname = ''
+    pathname = '',
+    schema
 }: SEOProps) => {
     const siteUrl = 'https://kushalkumawat.in';
     const fullUrl = `${siteUrl}${pathname}`;
@@ -24,7 +26,24 @@ export const SEO = ({
         ? `${title} | Kushal Kumawat`
         : 'Kushal Kumawat | Web Developer & Cybersecurity Enthusiast';
 
-    const defaultKeywords = 'Kushal Kumawat, Web Developer, Freelance Web Developer, Cybersecurity Enthusiast, Secure Web Development, React, Next.js, Tailwind CSS, Portfolio Website';
+    const defaultKeywords = 'Kushal Kumawat, Web Developer, Freelance Web Developer, Cybersecurity Enthusiast, Secure Web Development, React, Next.js, Tailwind CSS, Portfolio Website, Cybersecurity Projects';
+
+    const personSchema = {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Kushal Kumawat",
+        "url": siteUrl,
+        "jobTitle": "Cybersecurity Expert & Full Stack Developer",
+        "sameAs": [
+            "https://github.com/Kushal96499",
+            "https://www.linkedin.com/in/kushal-ku"
+        ],
+        "description": description
+    };
+
+    const finalSchema = schema 
+        ? (Array.isArray(schema) ? [personSchema, ...schema] : [personSchema, schema])
+        : personSchema;
 
     return (
         <Helmet>
@@ -48,6 +67,11 @@ export const SEO = ({
             <meta property="twitter:title" content={pageTitle} />
             <meta property="twitter:description" content={description} />
             <meta property="twitter:image" content={`${siteUrl}${ogImage}`} />
+
+            {/* Structured Data */}
+            <script type="application/ld+json">
+                {JSON.stringify(finalSchema)}
+            </script>
         </Helmet>
     );
 };

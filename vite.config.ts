@@ -38,10 +38,25 @@ export default defineConfig(() => ({
     sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['@radix-ui/react-slot', 'class-variance-authority', 'clsx', 'tailwind-merge', 'lucide-react'],
-
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('three') || id.includes('@react-three')) {
+              return 'three-vendor';
+            }
+            if (id.includes('pdfjs-dist') || id.includes('jspdf') || id.includes('pdf-lib') || id.includes('pdfmake')) {
+              return 'pdf-vendor';
+            }
+            if (id.includes('tesseract.js') || id.includes('fabric') || id.includes('xlsx')) {
+              return 'tools-vendor';
+            }
+            if (id.includes('framer-motion') || id.includes('gsap')) {
+              return 'animation-vendor';
+            }
+            if (id.includes('lucide-react')) {
+              return 'icons';
+            }
+            return 'vendor';
+          }
         },
       },
     },

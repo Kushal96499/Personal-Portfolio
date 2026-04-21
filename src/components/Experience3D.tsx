@@ -17,7 +17,7 @@ const NebulaRing = ({ isMobile }: { isMobile: boolean }) => {
         <Float speed={2} rotationIntensity={1} floatIntensity={1}>
             <mesh ref={meshRef} scale={isMobile ? 1.4 : 2.5}>
                 {/* Smoother geometry but optimized */}
-                <torusKnotGeometry args={[1, 0.3, 128, 32]} />
+                <torusKnotGeometry args={[1, 0.3, 64, 24]} />
 
                 {/* High Performance "Dark Chrome" Material for all devices */}
                 <meshStandardMaterial
@@ -76,7 +76,7 @@ const Debris = () => {
 
 const Experience3D = () => {
     const [isMobile, setIsMobile] = useState(false);
-    const [opacity, setOpacity] = useState(1);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const checkMobile = () => {
@@ -84,15 +84,16 @@ const Experience3D = () => {
         };
 
         const handleScroll = () => {
-            // Dim the background when scrolling down
+            if (!containerRef.current) return;
             const scrollY = window.scrollY;
-            const newOpacity = Math.max(0.3, 1 - scrollY / 800);
-            setOpacity(newOpacity);
+            // Use direct DOM manipulation for performance (avoid React re-render)
+            const opacity = Math.max(0.3, 1 - scrollY / 800);
+            containerRef.current.style.opacity = opacity.toString();
         };
 
         checkMobile();
-        window.addEventListener("resize", checkMobile);
-        window.addEventListener("scroll", handleScroll);
+        window.addEventListener("resize", checkMobile, { passive: true });
+        window.addEventListener("scroll", handleScroll, { passive: true });
 
         return () => {
             window.removeEventListener("resize", checkMobile);
@@ -102,10 +103,10 @@ const Experience3D = () => {
 
     return (
         <div
-            className="fixed inset-0 z-[-1] pointer-events-none bg-[#020005] transition-opacity duration-500"
-            style={{ opacity }}
+            ref={containerRef}
+            className="fixed inset-0 z-[-1] pointer-events-none bg-[#020005] transition-opacity duration-300 ease-out"
         >
-            <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
+            <Canvas dpr={isMobile ? 1 : [1, 1.5]} gl={{ antialias: !isMobile, alpha: true, powerPreference: "high-performance" }}>
                 <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={45} />
 
                 {/* Lighting */}
@@ -114,8 +115,19 @@ const Experience3D = () => {
                 <pointLight position={[10, -10, -10]} intensity={1.5} color="#a855f7" />
 
                 {/* Environment & Atmosphere */}
-                <Stars radius={100} depth={50} count={7000} factor={4} saturation={0} fade speed={0.5} />
-                <Sparkles count={50} scale={15} size={2} speed={0.2} opacity={0.3} color="#ffffff" />
+                <Stars 
+                    radius={100} 
+                    depth={50} 
+                    count={isMobile ? 2000 : 5000} 
+                    factor={4} 
+                    saturation={0} 
+                    fade 
+                    speed={0.5} 
+                />
+                
+                {!isMobile && (
+                    <Sparkles count={40} scale={15} size={2} speed={0.2} opacity={0.3} color="#ffffff" />
+                )}
 
                 <Suspense fallback={null}>
                     <NebulaRing isMobile={isMobile} />

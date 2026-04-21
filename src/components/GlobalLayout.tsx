@@ -1,5 +1,5 @@
-import { ReactNode, useEffect } from "react";
-import Experience3D from "./Experience3D";
+import { ReactNode, useEffect, lazy, Suspense } from "react";
+const Experience3D = lazy(() => import("./Experience3D"));
 import Navbar from "./Navbar";
 
 
@@ -46,7 +46,9 @@ const GlobalLayout = ({ children }: GlobalLayoutProps) => {
 
             {/* Persistent 3D Background - Fixed z-index handled in component */}
             {!isAdminRoute ? (
-                <Experience3D />
+                <Suspense fallback={<div className="fixed inset-0 bg-[#050505] -z-10" />}>
+                    <Experience3D />
+                </Suspense>
             ) : (
                 <div className="fixed inset-0 bg-[#050505] -z-10" />
             )}

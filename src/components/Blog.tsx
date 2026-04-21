@@ -87,8 +87,10 @@ const Blog = () => {
                     {post.thumbnail_url ? (
                       <img
                         src={post.thumbnail_url}
-                        alt={post.title}
+                        alt={`${post.title} article preview`}
                         className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-white/5">

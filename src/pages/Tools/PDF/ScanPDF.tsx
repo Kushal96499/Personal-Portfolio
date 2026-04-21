@@ -26,15 +26,40 @@ const ScanPDF = () => {
     }, [isCameraOpen]);
 
     const startCamera = async () => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            toast.error("Camera API not supported in this browser");
+            setIsCameraOpen(false);
+            return;
+        }
+
+        if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+            toast.error("Camera requires a secure context (HTTPS)");
+            setIsCameraOpen(false);
+            return;
+        }
+
         try {
-            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const constraints = {
+                video: {
+                    facingMode: { ideal: 'environment' },
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                }
+            };
+            const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
             setStream(mediaStream);
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream;
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error accessing camera:", err);
-            toast.error("Could not access camera");
+            let message = "Could not access camera";
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                message = "Camera permission denied";
+            } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                message = "No camera found on this device";
+            }
+            toast.error(message);
             setIsCameraOpen(false);
         }
     };
@@ -141,6 +166,7 @@ const ScanPDF = () => {
                                 ref={videoRef}
                                 autoPlay
                                 playsInline
+                                muted
                                 className="w-full h-auto"
                             />
                             <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
