@@ -1,3 +1,7 @@
+import { Buffer } from "buffer";
+window.Buffer = Buffer;
+window.global = window;
+
 import { createRoot } from "react-dom/client";
 import { HelmetProvider } from 'react-helmet-async';
 import App from "./App.tsx";

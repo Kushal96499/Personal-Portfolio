@@ -15,7 +15,7 @@ export default defineConfig(() => ({
     nodePolyfills({
       include: ['stream', 'util', 'buffer'],
       globals: {
-        Buffer: true,
+        Buffer: false, // Handled manually in main.tsx to avoid initialization order issues
         global: true,
         process: true,
       },
@@ -25,6 +25,7 @@ export default defineConfig(() => ({
   define: {
     'process.env': {},
     'process.platform': JSON.stringify('browser'),
+    'global': 'window',
   },
   resolve: {
     alias: {
