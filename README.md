@@ -143,7 +143,7 @@ VITE_TURNSTILE_SITE_KEY=your_cloudflare_turnstile_key
       </td>
       <td width="50%">
         <p align="center"><b>🛡️ Cyber Security Suite</b></p>
-        <img src="https://via.placeholder.com/600x350/0d0d0d/ffffff?text=Cyber+Tools+Interface" alt="Cyber Tools" style="border-radius: 8px;"/>
+        <img src="https://github.com/user-attachments/assets/77d4e9aa-84ed-4e1e-9cca-80d02baac622" alt="Cyber Tools" style="border-radius: 8px;"/>
       </td>
     </tr>
   </table>
