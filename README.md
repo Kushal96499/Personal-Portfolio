@@ -11,7 +11,7 @@
 
   <h3>"Bridging the Gap Between Defensive Security and Advanced Web Engineering."</h3>
   
-  [**Portfolio**](https://kushalkumawat.in) • [**Source Code**](https://github.com/Kushal96499) • [**LinkedIn**](https://linkedin.com/in/kushalkumawat) • [**Twitter**](https://twitter.com/kushalkumawat)
+  [**Portfolio**](https://kushalkumawat.in) • [**Source Code**](https://github.com/Kushal96499) • [**LinkedIn**](https://linkedin.com/in/kushal-ku) 
 </div>
 
 ---
@@ -139,7 +139,7 @@ VITE_TURNSTILE_SITE_KEY=your_cloudflare_turnstile_key
     <tr>
       <td width="50%">
         <p align="center"><b>🖥️ Immersive Dashboard</b></p>
-        <img src="https://via.placeholder.com/600x350/0d0d0d/ffffff?text=Dashboard+Interface" alt="Dashboard" style="border-radius: 8px;"/>
+        <img src="https://github.com/user-attachments/assets/69512766-e71e-4284-816b-3747eb86bb6a" alt="Dashboard" style="border-radius: 8px;"/>
       </td>
       <td width="50%">
         <p align="center"><b>🛡️ Cyber Security Suite</b></p>
