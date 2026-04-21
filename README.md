@@ -1,9 +1,5 @@
 # 🛡️ Kushal Kumawat | Elite Cyber-Engineering Portfolio
 
-<div align="center">
-  <img src="/public/favicon.ico" alt="Portfolio Header" width="900px" style="border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);"/>
-  <br/><br/>
-  
   [![Live Deployment](https://img.shields.io/badge/Live_Deployment-kushalkumawat.in-blueviolet?style=for-the-badge&logo=vercel)](https://kushalkumawat.in)
   [![Build Status](https://img.shields.io/badge/Build-Optimized-success?style=for-the-badge&logo=vite)](https://kushalkumawat.in)
   [![Security Tier](https://img.shields.io/badge/Security-A+_Rated-green?style=for-the-badge&logo=cloudflare)](https://kushalkumawat.in)
