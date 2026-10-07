@@ -1,7 +1,23 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, PerspectiveCamera, Environment, Stars, Sparkles } from "@react-three/drei";
-import { Suspense, useRef, useMemo, useState, useEffect } from "react";
+import React, { Component, ReactNode, Suspense, useRef, useMemo, useState, useEffect } from "react";
 import * as THREE from "three";
+
+class EnvironmentErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+    state = { hasError: false };
+    static getDerivedStateFromError() {
+        return { hasError: true };
+    }
+    componentDidCatch(error: any) {
+        console.warn("Failed to load 3D HDR environment preset, falling back to ambient lights:", error);
+    }
+    render() {
+        if (this.state.hasError) {
+            return null;
+        }
+        return this.props.children;
+    }
+}
 
 const NebulaRing = ({ isMobile }: { isMobile: boolean }) => {
     const meshRef = useRef<THREE.Mesh>(null);
@@ -132,7 +148,9 @@ const Experience3D = () => {
                 <Suspense fallback={null}>
                     <NebulaRing isMobile={isMobile} />
                     <Debris />
-                    <Environment preset="city" />
+                    <EnvironmentErrorBoundary>
+                        <Environment preset="city" />
+                    </EnvironmentErrorBoundary>
                 </Suspense>
             </Canvas>
 

@@ -1,10 +1,26 @@
-import { ReactNode, useEffect, lazy, Suspense } from "react";
+import { ReactNode, Component, useEffect, lazy, Suspense } from "react";
 const Experience3D = lazy(() => import("./Experience3D"));
 import Navbar from "./Navbar";
 
 
 import Lenis from "@studio-freight/lenis";
 import { useLocation } from "react-router-dom";
+
+class Background3DErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { hasError: boolean }> {
+    state = { hasError: false };
+    static getDerivedStateFromError() {
+        return { hasError: true };
+    }
+    componentDidCatch(error: any) {
+        console.warn("Background 3D scene error caught gracefully:", error);
+    }
+    render() {
+        if (this.state.hasError) {
+            return this.props.fallback;
+        }
+        return this.props.children;
+    }
+}
 
 interface GlobalLayoutProps {
     children: ReactNode;
@@ -46,9 +62,11 @@ const GlobalLayout = ({ children }: GlobalLayoutProps) => {
 
             {/* Persistent 3D Background - Fixed z-index handled in component */}
             {!isAdminRoute ? (
-                <Suspense fallback={<div className="fixed inset-0 bg-[#050505] -z-10" />}>
-                    <Experience3D />
-                </Suspense>
+                <Background3DErrorBoundary fallback={<div className="fixed inset-0 bg-[#050505] -z-10" />}>
+                    <Suspense fallback={<div className="fixed inset-0 bg-[#050505] -z-10" />}>
+                        <Experience3D />
+                    </Suspense>
+                </Background3DErrorBoundary>
             ) : (
                 <div className="fixed inset-0 bg-[#050505] -z-10" />
             )}
