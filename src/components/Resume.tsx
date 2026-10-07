@@ -84,19 +84,19 @@ const Resume = () => {
     {
       icon: <GraduationCap className="text-blue-400" size={28} />,
       label: "Education",
-      value: resumeData?.stats.educationCount.toString() || "0",
-      detail: resumeData?.stats.educationCount === 1 ? "Degree" : "Degrees"
+      value: (resumeData?.stats?.educationCount ?? 0).toString(),
+      detail: resumeData?.stats?.educationCount === 1 ? "Degree" : "Degrees"
     },
     {
       icon: <Briefcase className="text-purple-400" size={28} />,
       label: "Experience",
-      value: resumeData?.stats.experienceCount.toString() || "0",
-      detail: resumeData?.stats.experienceCount === 1 ? "Position" : "Positions"
+      value: (resumeData?.stats?.experienceCount ?? 0).toString(),
+      detail: resumeData?.stats?.experienceCount === 1 ? "Position" : "Positions"
     },
     {
       icon: <Award className="text-emerald-400" size={28} />,
       label: "Projects",
-      value: `${resumeData?.stats.projectsCompleted || 0}+`,
+      value: `${resumeData?.stats?.projectsCompleted ?? 0}+`,
       detail: "Completed"
     }
   ];

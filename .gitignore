@@ -38,6 +38,7 @@ check_policies.sql
 temp.sql
 test.sql
 *.tmp
+powershell.cmd
 
 # OS files
 Thumbs.db

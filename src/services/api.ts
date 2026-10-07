@@ -1125,15 +1125,45 @@ export const api = {
 
     // ==================== RESUME MANAGEMENT ====================
     getResumeData: async (): Promise<ResumeData> => {
-        const { data, error } = await supabase
-            .from('resume_data')
-            .select('*')
-            .limit(1)
-            .maybeSingle();
+        try {
+            const { data, error } = await supabase
+                .from('resume_data')
+                .select('*')
+                .limit(1)
+                .maybeSingle();
 
-        if (error) throw error;
+            if (error) {
+                console.error('Error fetching resume data from Supabase:', error);
+                return {
+                    education: [],
+                    experience: [],
+                    stats: {
+                        educationCount: 0,
+                        experienceCount: 0,
+                        projectsCompleted: 0,
+                        yearsOfExperience: 0,
+                    },
+                    resume_pdf_path: null,
+                };
+            }
 
-        if (!data) {
+            if (!data) {
+                return {
+                    education: [],
+                    experience: [],
+                    stats: {
+                        educationCount: 0,
+                        experienceCount: 0,
+                        projectsCompleted: 0,
+                        yearsOfExperience: 0,
+                    },
+                    resume_pdf_path: null,
+                };
+            }
+
+            return data as unknown as ResumeData;
+        } catch (err) {
+            console.error('Failed to get resume data:', err);
             return {
                 education: [],
                 experience: [],
@@ -1146,8 +1176,6 @@ export const api = {
                 resume_pdf_path: null,
             };
         }
-
-        return data as unknown as ResumeData;
     },
 
     updateResumeData: async (updates: Partial<ResumeData>): Promise<ResumeData> => {

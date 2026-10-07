@@ -128,8 +128,7 @@ const App = () => {
     setVerified(false);
   }, []);
 
-  const handleVerified = async (token) => {
-    // On localhost, skip backend verification but still show the UI for 3 seconds
+  const handleVerified = async (token: string) => {
     console.log("Security check completed, proceeding to site");
     setVerified(true);
   };

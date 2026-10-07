@@ -1,43 +1,97 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import Turnstile from "react-turnstile";
+
+// Bridge for react-turnstile: ensure callback resolves even if Turnstile
+// script was loaded prior to component mounting or callback assignment.
+if (typeof window !== 'undefined' && !window.__turnstileBridgeInstalled) {
+    window.__turnstileBridgeInstalled = true;
+    let _cfCallback = window.cf__reactTurnstileOnLoad;
+    Object.defineProperty(window, 'cf__reactTurnstileOnLoad', {
+        configurable: true,
+        get() {
+            return _cfCallback;
+        },
+        set(fn) {
+            _cfCallback = fn;
+            if (typeof fn === 'function' && window.turnstile) {
+                setTimeout(() => {
+                    try {
+                        fn();
+                    } catch (e) {
+                        console.debug("Turnstile onload bridge:", e);
+                    }
+                }, 0);
+            }
+        }
+    });
+}
 
 export default function SecurityCheck({ onVerified, externalError }) {
-    const mountedRef = useRef(true);
-    const [isVerifying, setIsVerifying] = useState(false);
-    const [isChecked, setIsChecked] = useState(false);
+    const [error, setError] = useState(null);
+    const [widgetKey, setWidgetKey] = useState(0);
+
+    const isLocalhost = typeof window !== 'undefined' && 
+        (window.location.hostname === 'localhost' || 
+         window.location.hostname === '127.0.0.1' || 
+         window.location.hostname === '::1' || 
+         window.location.hostname === '[::1]' || 
+         window.location.hostname === '0.0.0.0' || 
+         window.location.hostname.endsWith('.local'));
+
+    // Production site key or Cloudflare test key for localhost
+    const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || 
+        (isLocalhost ? "1x00000000000000000000AA" : "0x4AAAAAACCnPOSXXplvy65O");
 
     useEffect(() => {
-        mountedRef.current = true;
+        if (externalError) {
+            setError(externalError);
+            setWidgetKey(prev => prev + 1);
+        }
+    }, [externalError]);
 
-        // Start verification animation after 0.5 seconds
-        const startTimer = setTimeout(() => {
-            if (mountedRef.current) {
-                setIsVerifying(true);
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        // If Turnstile is already loaded, ensure callback is triggered immediately
+        if (window.turnstile && typeof window.cf__reactTurnstileOnLoad === 'function') {
+            try {
+                window.cf__reactTurnstileOnLoad();
+            } catch (e) {
+                console.debug("Turnstile onload bridge:", e);
             }
-        }, 500);
+        }
 
-        // Show checkmark after 1.5 seconds (1s of spinning animation)
-        const checkTimer = setTimeout(() => {
-            if (mountedRef.current) {
-                setIsVerifying(false);
-                setIsChecked(true);
+        const checkInterval = setInterval(() => {
+            if (window.turnstile && typeof window.cf__reactTurnstileOnLoad === 'function') {
+                try {
+                    window.cf__reactTurnstileOnLoad();
+                } catch (e) {
+                    console.debug("Turnstile onload bridge:", e);
+                }
             }
-        }, 1500);
+        }, 100);
 
-        // Complete verification after 2 seconds total
-        const verifyTimer = setTimeout(() => {
-            if (mountedRef.current) {
-                onVerified("simulated-token");
-            }
-        }, 2000);
+        return () => clearInterval(checkInterval);
+    }, []);
 
-        return () => {
-            mountedRef.current = false;
-            clearTimeout(startTimer);
-            clearTimeout(checkTimer);
-            clearTimeout(verifyTimer);
-        };
-    }, [onVerified]);
+    const handleSuccess = (token) => {
+        console.log("Turnstile verification successful");
+        setError(null);
+        if (onVerified) {
+            onVerified(token);
+        }
+    };
+
+    const handleError = (errorCode) => {
+        console.error("Turnstile widget error:", errorCode);
+        setError("Verification failed. Please try again.");
+    };
+
+    const handleExpire = () => {
+        console.warn("Turnstile token expired");
+        setWidgetKey(prev => prev + 1);
+    };
 
     return createPortal(
         <div className="fixed inset-0 z-[99999] antialiased overflow-y-auto flex items-center p-4 sm:p-8 font-sans" style={{ backgroundColor: '#141414', fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif', cursor: 'default' }}>
@@ -57,79 +111,33 @@ export default function SecurityCheck({ onVerified, externalError }) {
                     </p>
                 </div>
 
-
-                {/* The Widget Box - OFFICIAL CLOUDFLARE CHECKBOX STYLE */}
-                <div className="flex items-center justify-between border relative select-none cursor-pointer transition-colors" style={{
-                    backgroundColor: '#333333',
-                    borderColor: '#4a4a4a',
-                    borderWidth: '2px',
-                    borderRadius: '3px',
-                    width: '300px',
-                    height: '78px',
-                    padding: '0 12px'
-                }}>
-
-                    {/* Left: Checkbox + "Verify you are human" */}
-                    <div className="flex items-center" style={{ gap: '14px', height: '100%' }}>
-                        {/* Checkbox with Loading Animation */}
-                        <div className="relative flex items-center justify-center flex-shrink-0 border-2" style={{
-                            width: '30px',
-                            height: '30px',
-                            borderRadius: '3px',
-                            borderColor: isChecked ? '#4caf50' : (isVerifying ? '#4caf50' : '#757575'),
-                            backgroundColor: isChecked ? '#4caf50' : 'transparent',
-                            transition: 'all 0.3s ease'
-                        }}>
-                            {/* Loading Spinner - Green Ring */}
-                            {isVerifying && !isChecked && (
-                                <svg className="w-[22px] h-[22px]" viewBox="0 0 50 50" style={{ animation: 'spin 0.8s linear infinite' }}>
-                                    <circle
-                                        cx="25"
-                                        cy="25"
-                                        r="20"
-                                        fill="none"
-                                        stroke="#4caf50"
-                                        strokeWidth="5"
-                                        strokeLinecap="round"
-                                        strokeDasharray="31.4 31.4"
-                                        transform="rotate(-90 25 25)"
-                                    />
-                                </svg>
-                            )}
-
-                            {/* Checkmark */}
-                            {isChecked && (
-                                <svg viewBox="0 0 24 24" className="w-[20px] h-[20px]" fill="none" stroke="white" strokeWidth="3">
-                                    <polyline points="20 6 9 17 4 12" />
-                                </svg>
-                            )}
-                        </div>
-
-                        {/* "Verify you are human" Text */}
-                        <span style={{ fontSize: '16px', fontWeight: 400, lineHeight: 1, color: '#f0f0f0' }}>
-                            Verify you are human
-                        </span>
-                    </div>
-
-                    {/* Right: Cloudflare Logo (Vertical Stack) - COMPACT */}
-                    <div className="flex flex-col items-center justify-center" style={{ gap: '3px', height: '100%' }}>
-                        {/* Orange Cloud Icon */}
-                        <svg viewBox="0 0 48 24" style={{ height: '16px', width: 'auto', marginBottom: '1px' }} fill="#F48120">
-                            <path d="M36.65,7.74c-1.89,0-3.61,0.92-4.71,2.34C31.54,9.65,31.06,9.45,30.56,9.45c-1.3,0-2.5,0.48-3.43,1.27 c-0.89-2.31-3.13-3.95-5.75-3.95c-2.86,0-5.27,1.95-6.07,4.64c-0.64-0.18-1.31-0.28-2.01-0.28C5.97,11.13,2,15.1,2,20s3.97,8.87,8.87,8.87 h25.77c3.95,0,7.16-3.21,7.16-7.16S40.6,7.74,36.65,7.74z" transform="scale(0.5) translate(0, 0)" />
-                        </svg>
-
-                        {/* CLOUDFLARE Text */}
-                        <span style={{ fontSize: '10px', fontWeight: 700, lineHeight: 1, letterSpacing: '0.03em', color: '#fff' }}>CLOUDFLARE</span>
-
-                        {/* Privacy • Terms */}
-                        <div className="flex" style={{ fontSize: '8px', fontWeight: 400, lineHeight: 1, gap: '5px', color: '#999999', marginTop: '2px' }}>
-                            <span className="cursor-pointer hover:underline">Privacy</span>
-                            <span>•</span>
-                            <span className="cursor-pointer hover:underline">Terms</span>
-                        </div>
-                    </div>
+                {/* Real Cloudflare Turnstile Widget Box */}
+                <div style={{ minHeight: '65px', minWidth: '300px' }}>
+                    <Turnstile
+                        key={widgetKey}
+                        sitekey={siteKey}
+                        onVerify={handleSuccess}
+                        onError={handleError}
+                        onExpire={handleExpire}
+                        theme="dark"
+                        size="normal"
+                        retry="auto"
+                        refreshExpired="auto"
+                    />
                 </div>
 
+                {error && (
+                    <div style={{ color: '#ef4444', marginTop: '12px', fontSize: '13px' }}>
+                        {error}
+                        <button 
+                            type="button"
+                            onClick={() => { setError(null); setWidgetKey(prev => prev + 1); }}
+                            style={{ marginLeft: '8px', color: '#06b6d4', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}
+                        >
+                            Retry
+                        </button>
+                    </div>
+                )}
 
                 {/* Description Paragraph */}
                 <div className="max-w-[700px] font-normal mt-10" style={{ fontSize: '18px', lineHeight: 1.6, color: '#b0b0b0' }}>
@@ -138,15 +146,6 @@ export default function SecurityCheck({ onVerified, externalError }) {
                     </p>
                 </div>
             </div>
-
-            {/* CSS Animation for Spinner */}
-            <style>{`
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-            `}</style>
-
         </div>,
         document.body
     );
