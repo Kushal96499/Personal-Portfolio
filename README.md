@@ -1,170 +1,270 @@
-# 🛡️ Kushal Kumawat | Elite Cyber-Engineering Portfolio
+# Kushal Kumawat - Personal Portfolio and Web Tools Platform
 
-  [![Live Deployment](https://img.shields.io/badge/Live_Deployment-kushalkumawat.in-blueviolet?style=for-the-badge&logo=vercel)](https://kushalkumawat.in)
-  [![Build Status](https://img.shields.io/badge/Build-Optimized-success?style=for-the-badge&logo=vite)](https://kushalkumawat.in)
-  [![Security Tier](https://img.shields.io/badge/Security-A+_Rated-green?style=for-the-badge&logo=cloudflare)](https://kushalkumawat.in)
-  [![License](https://img.shields.io/badge/License-MIT-gray?style=for-the-badge&logo=opensourceinitiative)](./LICENSE)
+A production-grade personal portfolio and browser-based utility platform built with React, TypeScript, Vite, Tailwind CSS, and Supabase. The application functions both as a professional portfolio showcasing projects, experience, and certifications, and as a privacy-focused toolbox containing over 40 client-side utilities for cybersecurity analysis, document processing, and developer tasks.
 
-  <h3>"Bridging the Gap Between Defensive Security and Advanced Web Engineering."</h3>
-  
-  [**Portfolio**](https://kushalkumawat.in) • [**Source Code**](https://github.com/Kushal96499) • [**LinkedIn**](https://linkedin.com/in/kushal-ku) 
-</div>
+- **Live URL**: https://kushalkumawat.in
+- **Repository**: https://github.com/Kushal96499/personal-portfolio
+- **Author**: Kushal Kumawat (Web Developer & Cybersecurity Enthusiast)
 
 ---
 
-## 💎 The Engineering Philosophy
+## Table of Contents
 
-In an era of server-side data harvesting, this portfolio serves as a **Privacy-First Utility Hub**. It provides a suite of 40+ professional-grade tools that execute entirely in the **client-side context** (Zero-Knowledge). By leveraging WebAssembly (WASM) and browser-native APIs, I ensure that sensitive documents and cryptographic data never leave the user's machine.
-
-### Core Strategic Pillars:
-*   **Privacy-by-Design**: Client-side document processing using `pdf-lib` and WASM.
-*   **Security-First Architecture**: Strict CSP headers, HSTS, and Row-Level Security (RLS).
-*   **Immersive UX**: High-performance 3D visualization using React Three Fiber and GSAP.
-*   **Data Integrity**: Robust state management and real-time backend synchronization via Supabase.
+- [Overview](#overview)
+- [Core Architecture](#core-architecture)
+- [Feature Breakdown](#feature-breakdown)
+  - [1. Cybersecurity Tools](#1-cybersecurity-tools)
+  - [2. Client-Side Document and PDF Suite](#2-client-side-document-and-pdf-suite)
+  - [3. Developer and Daily Utilities](#3-developer-and-daily-utilities)
+  - [4. Portfolio and Administrative Dashboard](#4-portfolio-and-administrative-dashboard)
+- [Security Architecture and RLS Design](#security-architecture-and-rls-design)
+  - [Content Security Policy (CSP)](#content-security-policy-csp)
+  - [Cloudflare Turnstile Verification Gate](#cloudflare-turnstile-verification-gate)
+  - [Database Row-Level Security (RLS)](#database-row-level-security-rls)
+- [Performance and Build Optimizations](#performance-and-build-optimizations)
+- [Project Structure](#project-structure)
+- [Local Development Setup](#local-development-setup)
+  - [Prerequisites](#prerequisites)
+  - [Installation Steps](#installation-steps)
+  - [Environment Variables](#environment-variables)
+  - [Available Scripts](#available-scripts)
+- [Deployment Configuration](#deployment-configuration)
+- [License](#license)
+- [Contact](#contact)
 
 ---
 
-## 🏗️ Technical Architecture & Workflow
+## Overview
 
-The system utilizes a distributed architecture designed for low latency and high security.
+Most online utility sites (PDF editors, converters, token inspectors) transmit user-uploaded files and tokens across the network to remote backend servers for processing. This platform is built around a zero-knowledge, client-side execution model:
+
+1. **Zero Data Transmission**: Files, PDFs, tokens, and credentials remain entirely in the visitor's local browser memory (`ArrayBuffer` / `Blob`). Nothing is uploaded to any server.
+2. **WebAssembly and Web Workers**: Computation-intensive jobs such as optical character recognition (OCR) and PDF manipulation run in background Web Workers to maintain a smooth 60fps main thread.
+3. **Defense-in-Depth Web Security**: The site enforces strict HTTP response headers, Content Security Policy rules, bot verification via Cloudflare Turnstile, and non-recursive Row-Level Security on Supabase PostgreSQL.
+
+---
+
+## Core Architecture
 
 ```mermaid
 graph TD
-    User((User)) -->|WAF / DDoS Protection| CF[Cloudflare Edge]
-    subgraph Frontend [Vite-Powered React Core]
-        CF --> UI[React UI / Shadcn UI]
-        UI --> Hooks[Custom Hooks / Context API]
-        UI --> Store[MobX / Context State]
-        Hooks --> Fiber[3D Scene Engine / R3F]
-        Hooks --> Motion[Animation Layer / GSAP]
+    Client[Visitor Browser] --> Edge[Cloudflare Pages CDN]
+    Edge --> Gate[Cloudflare Turnstile Challenge]
+    Gate --> App[React 18 Application Shell]
+
+    subgraph Client-Side Execution Context
+        App --> WorkerPool[Web Workers & WASM Engine]
+        WorkerPool --> PDFEngine[pdf-lib / pdfjs / WASM]
+        WorkerPool --> OCREngine[Tesseract.js OCR Worker]
+        WorkerPool --> CryptoEngine[Web Crypto API / CryptoJS]
     end
-    subgraph Computation [Zero-Knowledge Client Processing]
-        UI --> PDF[WASM PDF Engine / pdf-lib]
-        UI --> AI[OCR Engine / Tesseract.js]
-        UI --> Crypto[Crypto Engine / Crypto.js]
+
+    subgraph Backend and Data Layer
+        App --> SupabaseAuth[Supabase Auth - JWT]
+        App --> SupabaseDB[(PostgreSQL Database)]
+        App --> SupabaseRT[Realtime WebSocket Channels]
+        App --> SupabaseStorage[Portfolio Assets Storage]
     end
-    subgraph Backend [Privacy-Focused Persistence]
-        Hooks --> Auth[Supabase Auth / JWT]
-        Hooks --> DB[PostgreSQL / RLS Policies]
-        Hooks --> Analytics[Custom Log Engine]
-    end
-    CF -->|Challenge| Turnstile[Cloudflare Turnstile]
+
+    SupabaseDB --- RLS[PostgreSQL RLS with is_admin Helper]
 ```
 
 ---
 
-## 🛠️ Performance & Security Case Studies
+## Feature Breakdown
 
-### 1. **Client-Side WASM PDF Orchestration**
-Unlike traditional tools that upload files to a server, this platform uses a specialized `IngestionBuffer` system.
-*   **Optimization**: Large PDF files are handled as `ArrayBuffer` objects to minimize memory overhead.
-*   **Speed**: Multi-threaded processing via Web Workers ensures the main UI thread remains responsive (60fps) even during complex merges or OCR tasks.
+### 1. Cybersecurity Tools
+A suite of utilities designed for web security inspection, network analysis, and vulnerability assessment:
+- **Security Headers Analyzer**: Evaluates HTTP response headers (`CSP`, `HSTS`, `X-Frame-Options`, `Permissions-Policy`) and provides grading and remediation steps.
+- **CORS Misconfiguration Tester**: Tests cross-origin resource sharing policies against custom origins to detect permissive wildcard access and missing credentials checks.
+- **Cookie Security Evaluator**: Verifies `Secure`, `HttpOnly`, `SameSite`, and expiry attributes on browser cookies.
+- **Input Reflection Tester**: Tests input sanitization behavior against reflected payloads for common XSS patterns.
+- **Parameter Discovery**: Discovers and enumerates hidden GET/POST parameters on target endpoints.
+- **JWT Analyzer and Decoder**: Parses header, payload, and signature components of JSON Web Tokens without sending secrets to any external server.
+- **Hash and Password Tools**: Generate cryptographic hashes (MD5, SHA-1, SHA-256, SHA-512) and evaluate password entropy with zxcvbn-based scoring.
+- **Network Reconnaissance Simulation**: IP lookups, DNS records inspection, and attack surface overview simulators.
 
-### 2. **Infrastructure Hardening (Defense-in-Depth)**
-The deployment layer is hardened using advanced Cloudflare configurations:
-*   **Security Headers**: Automated injection of `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, and custom `Content-Security-Policy`.
-*   **Zaraz Integration**: Third-party scripts are offloaded to Cloudflare Zaraz to eliminate third-party code execution in the main browser context, significantly improving security and performance.
+### 2. Client-Side Document and PDF Suite
+A full-featured PDF manipulation toolkit that runs without uploading files:
+- **Page Management**: Merge multiple PDFs, split documents into ranges, extract pages, rotate pages, and delete unwanted pages.
+- **Document Protection and Redaction**: Apply user/owner passwords to PDF files, unlock encrypted PDFs, and permanently redact sensitive text and image areas.
+- **Content and Extraction**: Optical Character Recognition (OCR) via `tesseract.js` directly in a browser worker, page numbering, custom watermarking, and metadata editing.
+- **Memory Management**: Large files are handled via chunked `ArrayBuffer` allocations and cleaned up after execution to avoid browser memory leaks.
 
-### 3. **Manual Chunking & Tree-Shaking**
-Configured `vite.config.ts` with a custom `manualChunks` strategy to isolate high-weight libraries (`three.js`, `pdf-lib`) into dedicated vendor bundles, resulting in a **40% reduction** in initial load time for mobile users.
+### 3. Developer and Daily Utilities
+- **Converters and Translators**: Base64 encoding/decoding, URL encoding, Markdown-to-HTML converter with live preview, and regex tester with regex flag support.
+- **Image Processing**: Client-side image compression and format conversion using the HTML5 Canvas API.
+- **Business Tools**: Professional GST invoice generator, general invoice generator, EMI loan calculator, and GST tax calculator.
+- **Utility Tools**: QR code generator with custom styling and error-correction levels, color picker, and date/time calculation tools.
+
+### 4. Portfolio and Administrative Dashboard
+- **Dynamic Content**: Interactive terminal emulator, 3D experience views (powered by React Three Fiber), skill matrix, projects showcase, blog posts, and client testimonials.
+- **Admin Control Panel**: Secured routes under `/admin/*` allowing the portfolio owner to manage project items, write blog entries, update resume details, inspect contact leads, and toggle site sections.
+- **Real-Time Synchronisation**: Site control states and resume updates sync in real time across sessions using Supabase WebSocket broadcast channels.
 
 ---
 
-## 🚀 Interactive Feature Matrix
+## Security Architecture and RLS Design
 
-| Domain | Capabilities | Technology Stack |
-| :--- | :--- | :--- |
-| **PDF Intelligence** | Merge, Split, Compress, OCR, Sign, Redact, Repair, Metadata Edit | `pdf-lib`, `Tesseract.js`, `jspdf`, `WASM` |
-| **Cyber Security** | IP Intelligence, Hash Cracking, DNS Discovery, Port Scanning (Sim), Password Strength | `Crypto.js`, `Browser APIs`, `Networking Hooks` |
-| **Developer Productivity** | Markdown Interface, JSON Validator, Image Minifier, Base64 Suite, QR Engine | `canvas-api`, `react-markdown`, `zod` |
-| **Admin Control** | MDX Blog Engine, Real-time Analytics, Project Manager, Global Settings | `Supabase`, `React Hook Form`, `Cloudflare Zaraz` |
-| **Visual Experience** | Immersive Terminal CLI, 3D Assets, Adaptive Hacker Themes | `Three.js`, `Framer Motion`, `TailwindCSS` |
+### Content Security Policy (CSP)
+The application defines a strict CSP in `public/_headers` to eliminate XSS vectors while allowing legitimate dependencies:
+
+```http
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://*.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com; font-src 'self' data: https://api.fontshare.com https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.cloudflare.com https://static.cloudflareinsights.com https://www.google-analytics.com https://www.googletagmanager.com; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self' blob:; child-src 'self' blob: https://challenges.cloudflare.com; object-src 'none'; base-uri 'self';
+```
+
+- Explicit permissions for `https://*.supabase.co` (REST endpoints) and `wss://*.supabase.co` (Realtime WebSockets).
+- Cloudflare Turnstile challenge origins explicitly whitelisted under `frame-src`, `script-src`, and `connect-src`.
+- Unrestricted wildcards (`https:`) are avoided in `connect-src` to prevent unauthorized data exfiltration.
+
+### Cloudflare Turnstile Verification Gate
+- All incoming visitors are verified through an interactive Cloudflare Turnstile challenge before unlocking the portfolio view.
+- Loaded with `?render=explicit` to prevent race conditions with the React lifecycle.
+- An onload bridge synchronizes the global `window.turnstile` script with `react-turnstile`'s promise handler to guarantee immediate widget initialization.
+
+### Database Row-Level Security (RLS)
+Supabase PostgreSQL tables (`admin_users`, `resume_data`, `site_controls`, `contact_messages`, `leads`) have RLS strictly enabled. 
+
+To eliminate self-referential policy recursion on `admin_users`, administrative checks use a dedicated `SECURITY DEFINER` function with a locked search path:
+
+```sql
+CREATE OR REPLACE FUNCTION public.is_admin(user_id uuid DEFAULT auth.uid())
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.admin_users WHERE admin_users.user_id = is_admin.user_id
+  );
+$$;
+```
+
+This ensures:
+- Anonymous visitors can safely read public tables (`resume_data`, `projects`, `skills`) without recursion errors.
+- Protected tables (`admin_users`, `contact_messages`) are strictly inaccessible to unauthorized users.
+- The Supabase `service_role` secret is never bundled or exposed in frontend code.
 
 ---
 
-## 📂 Project Organization
+## Performance and Build Optimizations
+
+- **Vite SWC Compilation**: Uses `@vitejs/plugin-react-swc` for fast build and HMR cycles.
+- **Rollup Manual Chunk Splitting**: Heavy libraries that are only needed on demand are isolated into separate vendor bundles:
+  - `graphics-vendor`: Isolated `three`, `@react-three/fiber`, and `@react-three/drei`.
+  - `engine-vendor`: Isolated `pdf-lib`, `tesseract.js`, `xlsx`, `jszip`, `jspdf`, `mammoth`, and `fabric`.
+- **Node Polyfill Isolation**: Buffer and stream polyfills required by legacy document parsers are scoped to browser shims without leaking into global initialization order.
+
+---
+
+## Project Structure
 
 ```text
-├── .github/              # CI/CD Workflows
-├── public/               # Static assets & WASM workers
+personal-portfolio/
+├── public/                       # Static assets, Web Worker scripts, and HTTP headers
+│   ├── _headers                  # Cloudflare Pages security and cache headers
+│   ├── _redirects                # SPA routing rewrites
+│   ├── pdf.worker.min.mjs        # PDF.js background worker
+│   └── site.webmanifest          # PWA web manifest
 ├── src/
-│   ├── components/       # Atomized UI components (Shadcn)
-│   ├── contexts/         # Global state (Auth, Theme, Tools)
-│   ├── hooks/            # Custom business logic (useSecurity, usePDF)
-│   ├── pages/            # View-level components
-│   │   ├── Tools/        # Categorized utility clusters
-│   │   └── admin/        # Secured management dashboard
-│   ├── services/         # API & Backend bridge (Supabase)
-│   ├── lib/              # Third-party configurations
-│   └── utils/            # Pure helper functions
-├── supabase/             # Migration scripts & RLS policies
-└── vite.config.ts        # Advanced build configurations
+│   ├── components/               # Reusable UI components (Shadcn UI, Radix primitives)
+│   │   ├── ui/                   # Buttons, dialogs, dropdowns, inputs, cards
+│   │   ├── Resume.tsx            # Interactive resume section with live fallback
+│   │   ├── SecurityCheck.jsx     # Turnstile verification gate component
+│   │   └── Terminal.tsx          # Interactive command-line portfolio component
+│   ├── contexts/                 # Global state providers (Auth, SiteControls, Branding)
+│   ├── layouts/                  # Base layouts (GlobalLayout, AdminLayout)
+│   ├── pages/
+│   │   ├── Index.tsx             # Main landing page
+│   │   ├── admin/                # Authenticated administrative dashboards
+│   │   └── Tools/                # Tool implementations organized by category
+│   │       ├── Cyber/            # Security, network, and token inspection tools
+│   │       ├── PDF/              # Client-side PDF manipulation pages
+│   │       ├── Developer/        # Code, formatting, and conversion tools
+│   │       └── Business/         # Invoices and financial calculators
+│   ├── services/                 # Supabase client and query services
+│   ├── types/                    # TypeScript interfaces and database schemas
+│   ├── App.tsx                   # Main router and gatekeeper component
+│   ├── main.tsx                  # Application bootstrap and polyfills
+│   └── index.css                 # Tailwind directives and CSS variables
+├── supabase/
+│   ├── migrations/               # PostgreSQL migration scripts and RLS definitions
+│   └── functions/                # Supabase edge functions
+├── index.html                    # HTML shell, preconnect links, and Turnstile script
+├── tailwind.config.ts            # Tailwind theme tokens and animations
+└── vite.config.ts                # Build configuration and manual chunking rules
 ```
 
 ---
 
-## 🏁 Operational Setup
+## Local Development Setup
 
-### Environment Variables
-To run this project locally, create a `.env` file in the root:
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_TURNSTILE_SITE_KEY=your_cloudflare_turnstile_key
-```
+### Prerequisites
+- Node.js (version 18.x or 20.x recommended)
+- npm, pnpm, or yarn
+- A Supabase project instance (optional for read-only portfolio browsing)
 
-### Installation & Development
-1. **Clone & Install**
+### Installation Steps
+
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/Kushal96499/personal-portfolio.git
+   cd personal-portfolio
+   ```
+
+2. **Install project dependencies**:
+   ```bash
    npm install
    ```
-2. **Start Development**
+
+3. **Configure Environment Variables**:
+   Create a `.env` file in the project root:
+   ```env
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+   VITE_TURNSTILE_SITE_KEY=1x00000000000000000000AA
+   ```
+   > Note: `1x00000000000000000000AA` is Cloudflare's official dummy test sitekey for local development that always passes verification.
+
+4. **Start the development server**:
    ```bash
    npm run dev
    ```
+   The local server will start on `http://localhost:8080`.
+
+5. **Build and validate the production bundle**:
+   ```bash
+   npm run build
+   ```
+   To test the production build locally:
+   ```bash
+   npm run preview
+   ```
 
 ---
 
-## 📸 Interface Showcase
+## Deployment Configuration
 
-*(The user will insert high-resolution screenshots here to demonstrate the premium UI/UX)*
+This project is configured for deployment on **Cloudflare Pages**:
 
-<div align="center">
-  <table border="0">
-    <tr>
-      <td width="50%">
-        <p align="center"><b>🖥️ Immersive Dashboard</b></p>
-        <img src="https://github.com/user-attachments/assets/69512766-e71e-4284-816b-3747eb86bb6a" alt="Dashboard" style="border-radius: 8px;"/>
-      </td>
-      <td width="50%">
-        <p align="center"><b>🛡️ Cyber Security Suite</b></p>
-        <img src="https://github.com/user-attachments/assets/77d4e9aa-84ed-4e1e-9cca-80d02baac622" alt="Cyber Tools" style="border-radius: 8px;"/>
-      </td>
-    </tr>
-  </table>
-</div>
+- **Build Command**: `npm run build`
+- **Build Output Directory**: `dist`
+- **Node.js Version**: 18.x or 20.x
+- **Headers & Redirects**: Managed automatically through `public/_headers` and `public/_redirects`.
 
 ---
 
-## 🤝 Contributing
+## License
 
-Contributions are welcome! Please follow the standard workflow:
-1. Fork the Repository.
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the Branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+This project is open-source software licensed under the [MIT License](./LICENSE).
 
 ---
 
-## 📄 License & Governance
+## Contact
 
-Distributed under the **MIT License**. See `LICENSE` for more information.
-
-<div align="center">
-  <br/>
-  <p><b>Ready to innovate? Let's connect.</b></p>
-  <a href="mailto:contact@kushalkumawat85598.in">Email</a> • 
-  <a href="https://linkedin.com/in/kushal-ku">LinkedIn</a>
-</div>
+- **Kushal Kumawat**
+- **Website**: [kushalkumawat.in](https://kushalkumawat.in)
+- **LinkedIn**: [linkedin.com/in/kushal-ku](https://linkedin.com/in/kushal-ku)
+- **GitHub**: [@Kushal96499](https://github.com/Kushal96499)
+- **Email**: contact@kushalkumawat85598.in
