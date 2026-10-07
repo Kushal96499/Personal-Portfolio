@@ -39,6 +39,7 @@ temp.sql
 test.sql
 *.tmp
 powershell.cmd
+.editorconfig
 
 # OS files
 Thumbs.db
